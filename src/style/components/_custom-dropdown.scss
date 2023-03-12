@@ -1,0 +1,35 @@
+/* ------------------------------------------------------------ *\
+  custom-dropdown
+\* ------------------------------------------------------------ */
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+
+  .custom-dropdown__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .custom-dropdown__body {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 5px);
+    width: 100%;
+    z-index: 1;
+  }
+
+  .custom-dropdown__option {
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: background-color 0.1s;
+
+    &:hover {
+      background-color: #f67637;
+    }
+  }
+}

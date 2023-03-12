@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+@import 'variables.scss';
+@import 'mixins.scss';
+@import 'bootstrap.scss';
+@import 'typography.scss';
+@import 'layout.scss';
+
+// Components
+@import 'components/card.scss';
+@import 'components/custom-modal.scss';
+@import 'components/custom-dropdown.scss';
+@import 'components/header.scss';
+@import 'components/section-hero.scss';
+
+.img-profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}

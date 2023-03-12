@@ -1,0 +1,42 @@
+/* ------------------------------------------------------------ *\
+  header
+\* ------------------------------------------------------------ */
+
+.header {
+  position: fixed;
+  z-index: 1;
+  padding: 24px;
+  width: 100%;
+  background-color: $light;
+
+  .header__inner {
+    max-width: 1140px;
+    margin: auto;
+    padding: 0 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header__content {
+    display: flex;
+  }
+
+  .header__nav {
+    display: flex;
+    align-items: center;
+    padding-left: 50px;
+  }
+
+  .header__nav ul {
+    display: flex;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+
+  .header__nav li {
+    margin-right: 20px;
+  }
+
+}

@@ -1,0 +1,41 @@
+/* ------------------------------------------------------------ *\
+  custom-modal
+\* ------------------------------------------------------------ */
+
+.custom-modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .custom-modal__background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .custom-modal__content {
+    border-radius: 10px;
+    border: 1px solid #000;
+    background-color: #fff;
+    padding: 15px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .custom-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
