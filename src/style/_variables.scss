@@ -1,13 +1,15 @@
 // Color system
 $white:         #ffffff;
-$primary:       #F67637;
-$secondary:     #6c757d;
+$primary:       #eb0822;
+$secondary:     #14171A;
+$tertiary:      #1a1e23;
 $success:       #198754;
 $info:          #0dcaf0;
 $warning:       #ffc107;
-$danger:        #dc3545;
+$danger:        #dd6b20;
 $light:         #f8f9fa;
 $dark:          #212529;
+$dark-grey: #718096;
 
 // Spacing
 $spacer: 1rem;
@@ -26,19 +28,20 @@ $spacers: (
 );
 
 // Body
-$body-bg:                   $white;
-$body-color:                $dark;
+$body-bg:                   $secondary;
+$body-color:                $dark-grey;
 
 // Links
-$link-color:                              $primary;
+$link-color:                              $dark-grey;
 $link-decoration:                         none;
-$link-hover-decoration:                   underline;
+$link-hover-decoration:                   none;
 
 // Paragraphs
 $paragraph-margin-bottom: 0;
 
 // Components
 $border-radius:               .375rem;
+$border-color: #39424c;
 
 // Typography
 $font-family-base:            "Titillium Web", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;

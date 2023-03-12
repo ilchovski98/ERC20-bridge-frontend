@@ -1,17 +1,3 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-ul {
-  list-style-type: none;
-}
-
-img {
-  max-width: 100%;
-}
-
 @import 'variables.scss';
 @import 'mixins.scss';
 @import 'bootstrap.scss';
@@ -24,6 +10,29 @@ img {
 @import 'components/custom-dropdown.scss';
 @import 'components/header.scss';
 @import 'components/section-hero.scss';
+@import 'components/transfer-form.scss';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  transition: color .2s;
+
+  &:hover {
+    color: $light
+  }
+}
+
+ul {
+  list-style-type: none;
+}
+
+img {
+  max-width: 100%;
+}
 
 .img-profile {
   width: 32px;

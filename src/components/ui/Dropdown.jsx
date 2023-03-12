@@ -35,7 +35,7 @@ function Dropdown({ options, value, onChange, className }) {
   const renderedOptions = options.map(option => {
     return (
       <div
-        className="custom-dropdown__option"
+        className={`custom-dropdown__option ${option?.disabled && 'custom-dropdown__option--disabled'}`}
         key={option.value}
         onClick={() => handleOptionClick(option)}
       >
@@ -46,7 +46,7 @@ function Dropdown({ options, value, onChange, className }) {
 
   return (
     <div ref={divEl} className={'custom-dropdown ' + className}>
-      <Panel className="custom-dropdown__head" onClick={handleClick}>
+      <Panel className="panel--border custom-dropdown__head" onClick={handleClick}>
         {value?.label || 'Select...'}
         <GoChevronDown />
       </Panel>

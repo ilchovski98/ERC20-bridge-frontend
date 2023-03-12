@@ -1,0 +1,41 @@
+/* ------------------------------------------------------------ *\
+  transfer-form
+\* ------------------------------------------------------------ */
+
+.transfer-form {
+  padding: 60px 0;
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .transfer-form__inner {
+    padding: 10px;
+  }
+
+  .transfer-form__container {
+    padding: 10px;
+    border-radius: $border-radius;
+    background-color: $secondary;
+  }
+
+  .transfer-form__container + .transfer-form__container {
+    margin-top: 20px;
+  }
+
+  .transfer-form__container label {
+    margin-right: 10px;
+  }
+
+  .transfer-form__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+  }
+
+  .transfer-form__actions button {
+    width: 100%;
+    padding: 12px;
+  }
+}

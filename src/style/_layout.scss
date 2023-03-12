@@ -4,11 +4,16 @@
   min-height: 100vh;
 }
 
-.shell {
+.shell,
+.shell-medium {
   max-width: 1140px;
   margin: auto;
   padding: 0 15px;
   width: 100%;
+}
+
+.shell-medium {
+  max-width: 800px;
 }
 
 .header-wrapper {
@@ -20,15 +25,17 @@
 }
 
 .panel {
-  border: 1px solid #000;
-  border-radius: 10px;
+  border-radius: $border-radius;
   padding: 6px 10px;
-  box-shadow: 0 4px 10px 2px rgb(0 0 0 / 16%);
-  background-color: #fff;
+  background-color: $tertiary;
   width: 100%;
+
+  &.panel--border {
+    border: 1px solid $border-color;
+  }
 }
 
 .footer {
-  background-color: $light;
+  background-color: $tertiary;
   padding: 24px;
 }

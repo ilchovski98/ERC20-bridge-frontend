@@ -23,7 +23,7 @@
   }
 
   .custom-dropdown__option {
-    border-radius: 10px;
+    border-radius: $border-radius;
     cursor: pointer;
     padding: 5px 10px;
     transition: background-color 0.1s;
@@ -31,5 +31,10 @@
     &:hover {
       background-color: #f67637;
     }
+  }
+
+  .custom-dropdown__option--disabled {
+    opacity: .5;
+    pointer-events: none;
   }
 }
