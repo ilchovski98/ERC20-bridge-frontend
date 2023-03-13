@@ -1,0 +1,22 @@
+/* ------------------------------------------------------------ *\
+  panel
+\* ------------------------------------------------------------ */
+
+.panel {
+  border-radius: $border-radius;
+  padding: 10px;
+  background-color: $tertiary;
+  width: 100%;
+
+  &.panel--border {
+    border: 1px solid $border-color;
+  }
+
+  &.panel--padding-m {
+    padding: 12px;
+  }
+
+  &.panel--padding-lg {
+    padding: 20px;
+  }
+}

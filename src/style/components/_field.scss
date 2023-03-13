@@ -1,0 +1,24 @@
+/* ------------------------------------------------------------ *\
+  field
+\* ------------------------------------------------------------ */
+
+.field {
+  color: $light;
+  background-color: $tertiary;
+  width: 100%;
+  border: 1px solid $border-color;
+  padding: 10px 12px;
+  border-radius: $border-radius;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.field::-webkit-outer-spin-button,
+.field::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.field[type=number] {
+  -moz-appearance: textfield;
+}

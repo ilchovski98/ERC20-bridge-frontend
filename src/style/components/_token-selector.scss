@@ -1,0 +1,33 @@
+/* ------------------------------------------------------------ *\
+  token-selector
+\* ------------------------------------------------------------ */
+
+.token-selector {
+  .token-selector__btn {
+    display: flex;
+    align-items: center;
+    background-color: $tertiary;
+    border: 1px solid $border-color;
+    border-radius: 0 $border-radius $border-radius 0;
+    font-weight: bold;
+    padding: 10px 20px;
+
+    &:active {
+      background-color: $tertiary;
+    }
+
+    &:hover {
+      border-color: $primary;
+    }
+
+    svg {
+      margin-left: 10px;
+    }
+  }
+
+  .token-selector__field {
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: $border-radius 0 0 $border-radius;
+  }
+}

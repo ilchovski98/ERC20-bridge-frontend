@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { WagmiConfig, configureChains, createClient } from 'wagmi';
-import { goerli } from 'wagmi/chains';
+import { goerli, sepolia } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
 import Home from '../pages/Home';
@@ -13,7 +13,7 @@ import Header from './layout/Header';
 import Footer from './layout/Footer';
 
 function App() {
-  const { provider } = configureChains([goerli], [publicProvider()]);
+  const { provider } = configureChains([goerli, sepolia], [publicProvider()]);
 
   const client = createClient({
     provider,

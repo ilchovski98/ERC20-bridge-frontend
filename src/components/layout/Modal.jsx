@@ -13,6 +13,8 @@ function Modal({ onClose, children, actionBar }) {
       <div className="custom-modal__background" onClick={onClose}></div>
 
       <div className="custom-modal__content">
+        <button className="custom-modal__close" onClick={onClose}></button>
+
         <div className="custom-modal__entry">{children}</div>
 
         <div className="custom-modal__actions">{actionBar}</div>

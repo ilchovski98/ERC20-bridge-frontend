@@ -20,16 +20,18 @@
     top: calc(100% + 5px);
     width: 100%;
     z-index: 1;
+    border: 1px solid $border-color;
   }
 
   .custom-dropdown__option {
     border-radius: $border-radius;
     cursor: pointer;
     padding: 5px 10px;
-    transition: background-color 0.1s;
+    transition: background-color .1s, color .1s;
 
     &:hover {
-      background-color: #f67637;
+      background-color: $primary;
+      color: $light;
     }
   }
 

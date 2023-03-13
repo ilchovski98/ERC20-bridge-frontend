@@ -8,26 +8,33 @@ import Panel from '../components/ui/Panel';
 import Dropdown from '../components/ui/Dropdown';
 import Button from '../components/ui/Button';
 
+import useBridge from '../hooks/use-bridge';
+
 function Transfer() {
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
   const [isTransferValid, setIsTransferValid] = useState(false);
 
   const { chain } = useNetwork();
+  const { tokenList, getTokenList } = useBridge();
 
   useEffect(() => {
     const destinationChainsNewStatus = chainList.map(chainEl => {
-      if (chainEl.value === chain.id) {
+      if (chainEl.value === chain?.id) {
         return {...chainEl, disabled: true};
       }
 
       return chainEl;
     });
-    const selectedDestinationChain = chainList.filter(chainEl => chainEl.value !== chain.id);
+    const selectedDestinationChain = chainList.filter(chainEl => chainEl.value !== chain?.id);
 
     setDestinationChainsStatus(destinationChainsNewStatus);
     setDestinationChain(selectedDestinationChain[0]);
-  }, [chain])
+  }, [chain]);
+
+  useEffect(() => {
+    console.log('tokenList', tokenList);
+  }, [tokenList]);
 
   return (
     <div className="transfer-form">
@@ -37,7 +44,7 @@ function Transfer() {
         <Panel>
           <div className="transfer-form__inner">
             <div className="transfer-form__container">
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center mb-4">
                 <label>From</label>
 
                 <NetworkSwitch />

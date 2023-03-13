@@ -21,13 +21,22 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+  }
+
+  .custom-modal__head {
+    padding: 30px;
+  }
+
+  .custom-modal__body {
+    padding: 30px;
+    border-top: 1px solid $border-color;
   }
 
   .custom-modal__content {
     border-radius: $border-radius;
-    border: 1px solid #000;
-    background-color: #fff;
-    padding: 15px;
+    border: 1px solid $border-color;
+    background-color: $secondary;
     position: relative;
     z-index: 1;
     width: 100%;
@@ -37,5 +46,32 @@
   .custom-modal__actions {
     display: flex;
     justify-content: flex-end;
+  }
+
+  .custom-modal__close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    border: none;
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(135deg);
+      width: 20px;
+      height: 2px;
+      background-color: $dark-grey;
+      pointer-events: none;
+    }
+
+    &:after {
+      transform: translate(-50%, -50%) rotate(-135deg);
+    }
   }
 }

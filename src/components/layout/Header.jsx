@@ -69,15 +69,7 @@ function Header() {
                     alt=""
                   />
 
-                  <span>{truncate(address, 6)}</span>
-
-                  <span className="mx-3">|</span>
-
-                  <p>
-                    <span className="fw-bold">Balance: </span>
-
-                    <span>{Number(data && data.formatted).toFixed(3)} ETH</span>
-                  </p>
+                  <span>{truncate(address, 12)}</span>
                 </div>
               </>
             ) : (
