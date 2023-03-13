@@ -1,20 +1,20 @@
 import React from 'react';
 
 import LoadingSpinner from './ui/LoadingSpinner';
+import TokenItem from './TokenItem';
 
 const TokenList = ({ handleClick, tokenList, isLoadingTokenList }) => {
   const elements = tokenList.map((token, index) => {
-    return <li onClick={() => handleClick(token)} key={`${token.symbol}-${index}`}>
-      CircleIcon
-      {token.symbol}
-      {token.name}
-      {token.balance.toString()}
-    </li>
+    return (
+      <li key={`${token.symbol}-${index}`}>
+        <TokenItem token={token} handleClick={handleClick} />
+      </li>
+    )
   });
 
   return (
     <>
-      {isLoadingTokenList ? <LoadingSpinner /> : <ul>{elements}</ul>}
+      {isLoadingTokenList ? <LoadingSpinner /> : <ul className="token-list">{elements}</ul>}
     </>
   );
 };

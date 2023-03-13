@@ -24,6 +24,7 @@ function TokenSelectorContainer() {
 
   const handleTokenSelect = (token) => {
     setSelectedToken(token);
+    setShowModal(false);
   }
 
   const handleQuantityChange = (quantity) => {

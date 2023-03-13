@@ -11,23 +11,38 @@
     border-radius: 0 $border-radius $border-radius 0;
     font-weight: bold;
     padding: 10px 20px;
+    transition: border-color $transition-duration;
 
     &:active {
       background-color: $tertiary;
     }
 
     &:hover {
-      border-color: $primary;
+      border-color: $border-hover-color;
     }
+  }
 
-    svg {
-      margin-left: 10px;
-    }
+  .token-selector__btn svg {
+    transform: translateY(1px);
+  }
+
+  .token-selector__btn-symbol {
+    margin-right: 7px;
   }
 
   .token-selector__field {
     font-size: 24px;
     font-weight: bold;
     border-radius: $border-radius 0 0 $border-radius;
+    transition: border-color $transition-duration;
+
+    &:hover {
+      border-color: $border-hover-color;
+    }
+  }
+
+  .token-selector__icon {
+    width: 25px;
+    margin-right: 10px;
   }
 }

@@ -7,11 +7,16 @@
   width: 100%;
   max-width: 200px;
 
+  &:hover .custom-dropdown__head {
+    border-color: $border-hover-color;
+  }
+
   .custom-dropdown__head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    transition: border-color $transition-duration;
   }
 
   .custom-dropdown__body {
@@ -27,7 +32,7 @@
     border-radius: $border-radius;
     cursor: pointer;
     padding: 5px 10px;
-    transition: background-color .1s, color .1s;
+    transition: background-color $transition-duration, color $transition-duration;
 
     &:hover {
       background-color: $primary;

@@ -36,12 +36,16 @@ $link-color:                              $dark-grey;
 $link-decoration:                         none;
 $link-hover-decoration:                   none;
 
+// animation
+$transition-duration: .3s;
+
 // Paragraphs
 $paragraph-margin-bottom: 0;
 
 // Components
 $border-radius:               .375rem;
 $border-color: #39424c;
+$border-hover-color: #4E5A6E;
 
 // Typography
 $font-family-base:            "Titillium Web", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;

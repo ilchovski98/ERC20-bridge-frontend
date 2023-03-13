@@ -25,7 +25,12 @@ function TokenSelector({
           className="token-selector__btn"
           onClick={handleBtnClick}
         >
+          <div className="token-selector__icon">
+            <img src="ETH-icon.svg" alt="Token" />
+          </div>
+
           <div className="token-selector__btn-symbol">{currentToken?.symbol || 'ETH'}</div>
+
           <GoChevronDown />
         </Button>
       </div>

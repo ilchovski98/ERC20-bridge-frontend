@@ -11,9 +11,31 @@ import Button from '../components/ui/Button';
 import useBridge from '../hooks/use-bridge';
 
 function Transfer() {
+  // depositData = {
+  //   from: {
+  //     _address: userAccount1.address,  - done
+  //     chainId: chainId                 - done
+  //   },
+  //   to: {
+  //     _address: userAccount1.address,  - done
+  //     chainId: chainId                 - done
+  //   },
+  //   spender: bridge1.address,          - done
+  //   token: token.address,              - done
+  //   value: value,                      - done
+  //   deadline: deadline,                - hardcore to 1h
+  //   approveTokenTransferSig: {
+  //     v: approveSignature.v,
+  //     r: approveSignature.r,
+  //     s: approveSignature.s
+  //   }
+  // };
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
+
+  // Validation
   const [isTransferValid, setIsTransferValid] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
 
   const { chain } = useNetwork();
   const { tokenList, getTokenList } = useBridge();

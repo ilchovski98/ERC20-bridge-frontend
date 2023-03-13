@@ -1,0 +1,40 @@
+/* ------------------------------------------------------------ *\
+  token-item
+\* ------------------------------------------------------------ */
+
+.token-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: $border-radius;
+  transition: background-color $transition-duration;
+
+  &:hover {
+    background-color: $tertiary;
+  }
+
+  .token-item__image {
+    width: 40px;
+  }
+
+  .token-item__content {
+    padding-left: 20px;
+  }
+
+  .token-item__content .token-item__symbol {
+    color: $light;
+    font-size: 20px;
+  }
+
+  .token-item__balance {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .token-item__balance-value {
+    font-size: 16px;
+    color: $light;
+  }
+}
