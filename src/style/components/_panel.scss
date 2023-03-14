@@ -12,6 +12,10 @@
     border: 1px solid $border-color;
   }
 
+  &.panel--padding-none {
+    padding: 0;
+  }
+
   &.panel--padding-m {
     padding: 12px;
   }

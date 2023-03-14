@@ -15,7 +15,12 @@ export function handleErrorMessage(error, setErrorMessage) {
   setErrorMessage(errorMessage?.includes('user rejected transaction') ? '' : errorMessage);
 }
 
-export const multicallTokenData = async (coinAddresses, methodName, methodArguments, signer) => {
+export const multicallTokensDataByMethod = async (
+  coinAddresses,
+  methodName,
+  methodArguments,
+  signer,
+) => {
   //Make a new class using signer/provider:
   const multi = new MultiCall(signer);
   // Array for the prepared encoded inputs
@@ -31,6 +36,33 @@ export const multicallTokenData = async (coinAddresses, methodName, methodArgume
   // We are calling then the multicall method passing the ABI of the contract as well as encoded inputs:
   const tokenData = await multi.multiCall(permitERC20ABI.abi, inputs);
 
+  // We need to decode the result after the result is returned and we are using the first index of every element as follows:
+  for (let i = 0; i < inputs.length; i++) {
+    outputs[i] = tokenData[1][i];
+  }
+
+  return outputs;
+};
+
+/*
+  Example usage:
+  multicallTokenData2('contractAddress', ['balanceOf', 'name', 'symbol'], ['userAddress', '', ''], signer);
+*/
+export const multicallTokenData = async (coinAddress, methodNames, methodArguments, signer) => {
+  //Make a new class using signer/provider:
+  const multi = new MultiCall(signer);
+  // Array for the prepared encoded inputs
+  const inputs = [];
+  // Array for the decoded results with the balance of each token
+  const outputs = [];
+
+  for (let i = 0; i < methodNames.length; i++) {
+    inputs.push({ target: coinAddress, function: methodNames[i], args: methodArguments[i] });
+  }
+  console.log('inputs', inputs);
+
+  // We are calling then the multicall method passing the ABI of the contract as well as encoded inputs:
+  const tokenData = await multi.multiCall(permitERC20ABI.abi, inputs);
   // We need to decode the result after the result is returned and we are using the first index of every element as follows:
   for (let i = 0; i < inputs.length; i++) {
     outputs[i] = tokenData[1][i];

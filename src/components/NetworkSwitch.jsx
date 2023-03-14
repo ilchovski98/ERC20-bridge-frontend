@@ -4,7 +4,7 @@ import { useNetwork, useSwitchNetwork } from 'wagmi';
 import Dropdown from './ui/Dropdown';
 import { chainList } from '../config';
 
-const NetworkDropdown = () => {
+const NetworkDropdown = ({ onSwitch }) => {
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork(); // chains, error, isLoading, pendingChainId
   const [currentDropdownOption, setCurrentDropdownOption] = useState();
@@ -19,7 +19,10 @@ const NetworkDropdown = () => {
       <Dropdown
         options={chainList}
         value={currentDropdownOption}
-        onChange={chainEl => switchNetwork(chainEl.value)}
+        onChange={chainEl => {
+          switchNetwork(chainEl.value);
+          onSwitch();
+        }}
       />
     </>
   );

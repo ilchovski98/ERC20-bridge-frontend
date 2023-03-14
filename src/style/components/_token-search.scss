@@ -1,0 +1,44 @@
+/* ------------------------------------------------------------ *\
+  token-search
+\* ------------------------------------------------------------ */
+
+.token-search {
+  .token-search__head {
+    display: flex;
+    padding: 0 10px;
+  }
+
+  .token-search__body {
+    padding: 0 10px;
+  }
+
+  .token-search__btn {
+    border-radius: 0 $border-radius $border-radius 0;
+    min-width: 110px;
+  }
+
+  .token-search__field {
+    border-radius: $border-radius 0 0 $border-radius;
+  }
+
+  .token-search__message {
+    margin-left: 20px;
+    margin-top: 20px;
+    display: block;
+  }
+
+  .token-search__token-confirmation {
+    margin: 10px 0;
+  }
+
+  .token-search__actions {
+    margin: 15px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .token-search__actions button {
+    flex: 0 0 calc(50% - 5px);
+    max-width: calc(50% - 5px);
+  }
+}

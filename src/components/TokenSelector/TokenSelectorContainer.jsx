@@ -1,52 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import TokenSelector from './TokenSelector';
 import Modal from '../layout/Modal';
 import TokenList from '../TokenList';
+import TokenSearch from '../TokenSearch';
 
 import useBridge from '../../hooks/use-bridge';
 
-function TokenSelectorContainer() {
-  const [quantity, setQuantity] = useState(0);
-  const { tokenList, isLoadingTokenList } = useBridge();
-  const [selectedToken, setSelectedToken] = useState();
-
-  // Modal
+function TokenSelectorContainer({
+  quantity,
+  handleQuantityChange,
+  selectedToken,
+  handleTokenSelect
+}) {
   const [showModal, setShowModal] = useState(false);
+  const { tokenList, isLoadingTokenList } = useBridge();
 
-  useEffect(() => {
-    const doesSelectedTokenExits = tokenList.filter(token => token?.address === selectedToken?.address).length > 0;
-
-    if (!selectedToken || !doesSelectedTokenExits) {
-      setSelectedToken(tokenList[0]);
-    }
-  }, [tokenList, selectedToken]);
-
-  const handleTokenSelect = (token) => {
-    setSelectedToken(token);
+  const handleTokenSelectAndCloseModal = (token) => {
+    handleTokenSelect(token);
     setShowModal(false);
   }
 
-  const handleQuantityChange = (quantity) => {
-    setQuantity(quantity);
-  }
-
   const modal = (
-    <Modal onClose={() => setShowModal(false)} /*actionBar={modalActionBar}*/>
+    <Modal onClose={() => setShowModal(false)}>
       <div className="mb-4">
-        {/* {newBookModalError ? (
-          <div className="alert alert-danger mt-4">{newBookModalError}</div>
-        ) : null} */}
-
         <div className="custom-modal__head">
           <h2>Select token</h2>
         </div>
 
         <div className="custom-modal__body">
+          <TokenSearch
+            handleTokenConfirm={handleTokenSelectAndCloseModal}
+            handleTokenCancel={() => setShowModal(false)}
+          />
+
           <TokenList
-            handleClick={handleTokenSelect}
+            handleClick={handleTokenSelectAndCloseModal}
             tokenList={tokenList}
             isLoadingTokenList={isLoadingTokenList}
+            className="mt-4"
           />
         </div>
       </div>

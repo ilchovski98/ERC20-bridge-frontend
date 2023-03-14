@@ -4,7 +4,11 @@ import { useSigner, useNetwork } from 'wagmi';
 
 import bridgeABI from '../abi/Bridge.json';
 import { bridgeAddressesByChain, originalTokensByChain } from '../config';
-import { multicallTokenData, multicallGetArrayElements } from '../utils';
+import {
+  multicallTokensDataByMethod,
+  multicallGetArrayElements,
+  multicallTokenData,
+} from '../utils';
 
 const useBridge = () => {
   const { data: signer } = useSigner();
@@ -31,9 +35,9 @@ const useBridge = () => {
     const allTokenAddresses = [...originalTokenList, ...wrappedTokenList];
 
     if (allTokenAddresses.length > 0) {
-      const names = await multicallTokenData(allTokenAddresses, 'name', [], signer);
-      const symbols = await multicallTokenData(allTokenAddresses, 'symbol', [], signer);
-      const userBalances = await multicallTokenData(
+      const names = await multicallTokensDataByMethod(allTokenAddresses, 'name', [], signer);
+      const symbols = await multicallTokensDataByMethod(allTokenAddresses, 'symbol', [], signer);
+      const userBalances = await multicallTokensDataByMethod(
         allTokenAddresses,
         'balanceOf',
         [signer._address],

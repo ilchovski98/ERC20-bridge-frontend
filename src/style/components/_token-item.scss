@@ -14,6 +14,10 @@
     background-color: $tertiary;
   }
 
+  &.token-item--no-click {
+    cursor: auto;
+  }
+
   .token-item__image {
     width: 40px;
   }

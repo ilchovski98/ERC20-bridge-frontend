@@ -4,7 +4,8 @@ const Field = ({
   type = 'text',
   value,
   className = '',
-  onChange
+  onChange,
+  placeholder
 }) => {
   return (
     <input
@@ -12,6 +13,7 @@ const Field = ({
       value={value}
       onChange={onChange}
       className={`field ${className}`}
+      placeholder={placeholder}
     />
   );
 };

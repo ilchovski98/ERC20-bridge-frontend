@@ -3,7 +3,7 @@ import React from 'react';
 import LoadingSpinner from './ui/LoadingSpinner';
 import TokenItem from './TokenItem';
 
-const TokenList = ({ handleClick, tokenList, isLoadingTokenList }) => {
+const TokenList = ({ handleClick, tokenList, isLoadingTokenList, className }) => {
   const elements = tokenList.map((token, index) => {
     return (
       <li key={`${token.symbol}-${index}`}>
@@ -14,7 +14,7 @@ const TokenList = ({ handleClick, tokenList, isLoadingTokenList }) => {
 
   return (
     <>
-      {isLoadingTokenList ? <LoadingSpinner /> : <ul className="token-list">{elements}</ul>}
+      {isLoadingTokenList ? <LoadingSpinner /> : <ul className={`token-list ${className}`}>{elements}</ul>}
     </>
   );
 };

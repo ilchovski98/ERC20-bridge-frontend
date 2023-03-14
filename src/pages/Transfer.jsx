@@ -32,14 +32,25 @@ function Transfer() {
   // };
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
+  const [quantity, setQuantity] = useState(0);
+  const [selectedToken, setSelectedToken] = useState();
+  const { tokenList, isLoadingTokenList } = useBridge();
 
   // Validation
   const [isTransferValid, setIsTransferValid] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
 
   const { chain } = useNetwork();
-  const { tokenList, getTokenList } = useBridge();
 
+  const handleTokenSelect = (token) => {
+    setSelectedToken(token);
+  }
+
+  const handleQuantityChange = (quantity) => {
+    setQuantity(quantity);
+  }
+
+  // Destination chain switch
   useEffect(() => {
     const destinationChainsNewStatus = chainList.map(chainEl => {
       if (chainEl.value === chain?.id) {
@@ -54,9 +65,12 @@ function Transfer() {
     setDestinationChain(selectedDestinationChain[0]);
   }, [chain]);
 
+  // If there is no selected token select the first token from the list
   useEffect(() => {
-    console.log('tokenList', tokenList);
-  }, [tokenList]);
+    if (!selectedToken) {
+      setSelectedToken(tokenList[0]);
+    }
+  }, [tokenList, selectedToken]);
 
   return (
     <div className="transfer-form">
@@ -69,10 +83,17 @@ function Transfer() {
               <div className="d-flex align-items-center mb-4">
                 <label>From</label>
 
-                <NetworkSwitch />
+                <NetworkSwitch onSwitch={() => setSelectedToken("")} />
               </div>
 
-              <TokenSelectorContainer />
+              <TokenSelectorContainer
+                quantity={quantity}
+                tokenList={tokenList}
+                selectedToken={selectedToken}
+                handleTokenSelect={handleTokenSelect}
+                isLoadingTokenList={isLoadingTokenList}
+                handleQuantityChange={handleQuantityChange}
+              />
             </div>
 
             <div className="transfer-form__container">
