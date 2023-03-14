@@ -1,4 +1,5 @@
 import { MultiCall } from '@limechain/multicall';
+import { ethers } from 'ethers';
 
 import permitERC20ABI from '../abi/PermitERC20.json';
 
@@ -9,9 +10,10 @@ export function truncate(str, n) {
 }
 
 export function handleErrorMessage(error, setErrorMessage) {
-  const errorMessage = error.errorName
+  const errorName = error.errorName === 'Error' ? '' : error.errorName;
+  const errorMessage = errorName
     ? `Execution reverted with error: ${error.errorName}!`
-    : error.reason;
+    : `Error: ${error.reason}`;
   setErrorMessage(errorMessage?.includes('user rejected transaction') ? '' : errorMessage);
 }
 
@@ -46,7 +48,7 @@ export const multicallTokensDataByMethod = async (
 
 /*
   Example usage:
-  multicallTokenData2('contractAddress', ['balanceOf', 'name', 'symbol'], ['userAddress', '', ''], signer);
+  multicallTokenData('contractAddress', ['balanceOf', 'name', 'symbol'], ['userAddress', '', ''], signer);
 */
 export const multicallTokenData = async (coinAddress, methodNames, methodArguments, signer) => {
   //Make a new class using signer/provider:
@@ -99,25 +101,84 @@ export const multicallGetArrayElements = async (
   return outputs;
 };
 
-// depositData = {
-//   from: {
-//     _address: userAccount1.address,
-//     chainId: chainId
-//   },
-//   to: {
-//     _address: userAccount1.address,
-//     chainId: chainId
-//   },
-//   spender: bridge1.address,
-//   token: maliciousCoin.address,
-//   value: value,
-//   deadline: deadline,
-//   approveTokenTransferSig: {
-//     v: approveSignature.v,
-//     r: approveSignature.r,
-//     s: approveSignature.s
-//   }
-// };
+export async function signPermitData(token, signer, owner, spender, value, deadline, chainId) {
+  const nonce = await token.nonces(owner);
+
+  const domain = {
+    name: await token.name(),
+    version: '1',
+    chainId: chainId,
+    verifyingContract: token.address,
+  };
+
+  const Permit = [
+    { name: 'owner', type: 'address' },
+    { name: 'spender', type: 'address' },
+    { name: 'value', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' },
+  ];
+
+  const message = {
+    owner: owner,
+    spender: spender,
+    value: value,
+    nonce: nonce.toHexString(),
+    deadline,
+  };
+
+  const signatureLike = await signer._signTypedData(domain, { Permit }, message);
+  const signature = ethers.utils.splitSignature(signatureLike);
+
+  return signature;
+}
+
+export async function signClaimData(bridge, signer, claimData, chainId) {
+  const domain = {
+    name: await bridge.name(),
+    version: '1',
+    chainId: chainId,
+    verifyingContract: bridge.address,
+  };
+
+  const types = {
+    User: [
+      { name: '_address', type: 'address' },
+      { name: 'chainId', type: 'uint256' },
+    ],
+    OriginalToken: [
+      { name: 'tokenAddress', type: 'address' },
+      { name: 'originChainId', type: 'uint256' },
+    ],
+    ClaimData: [
+      { name: 'from', type: 'User' },
+      { name: 'to', type: 'User' },
+      { name: 'value', type: 'uint256' },
+      { name: 'token', type: 'OriginalToken' },
+      { name: 'depositTxSourceToken', type: 'address' },
+      { name: 'targetTokenAddress', type: 'address' },
+      { name: 'targetTokenName', type: 'string' },
+      { name: 'targetTokenSymbol', type: 'string' },
+      { name: 'deadline', type: 'uint256' },
+    ],
+    Claim: [
+      { name: '_claimData', type: 'ClaimData' },
+      { name: 'nonce', type: 'uint256' },
+    ],
+  };
+
+  const nonce = (await bridge.nonce(claimData.from._address)).toHexString();
+
+  const value = {
+    _claimData: claimData,
+    nonce: nonce,
+  };
+
+  const signatureLike = await signer._signTypedData(domain, types, value);
+  const signature = ethers.utils.splitSignature(signatureLike);
+
+  return signature;
+}
 
 // claimData = {
 //   from: {

@@ -17,6 +17,7 @@
 @import 'components/token-item.scss';
 @import 'components/token-list.scss';
 @import 'components/token-search.scss';
+@import 'components/list-view.scss';
 
 * {
   box-sizing: border-box;
@@ -25,11 +26,17 @@
 }
 
 a {
+  color: $primary;
+  word-wrap: break-word;
   transition: color .2s;
 
   &:hover {
     color: $light
   }
+}
+
+span {
+  word-wrap: break-word;
 }
 
 ul {

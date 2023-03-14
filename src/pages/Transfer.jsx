@@ -1,5 +1,5 @@
-  import React, { useState, useEffect, useCallback } from 'react';
-import { useNetwork } from 'wagmi';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNetwork, useSigner } from 'wagmi';
 
 import NetworkSwitch from '../components/NetworkSwitch';
 import TokenSelectorContainer from '../components/TokenSelector/TokenSelectorContainer';
@@ -7,44 +7,46 @@ import Panel from '../components/ui/Panel';
 import Dropdown from '../components/ui/Dropdown';
 import Button from '../components/ui/Button';
 import Modal from '../components/layout/Modal';
+import ListView from '../components/ListView';
 
-import { chainList } from '../config';
+import { chainList, chainsById } from '../config';
+import { multicallTokenData } from '../utils';
 import useBridge from '../hooks/use-bridge';
 
 function Transfer() {
-  // depositData = {
-  //   from: {
-  //     _address: userAccount1.address,  - done
-  //     chainId: chainId                 - done
-  //   },
-  //   to: {
-  //     _address: userAccount1.address,  - done
-  //     chainId: chainId                 - done
-  //   },
-  //   spender: bridge1.address,          - done
-  //   token: token.address,              - done
-  //   value: value,                      - done
-  //   deadline: deadline,                - hardcore to 1h
-  //   approveTokenTransferSig: {
-  //     v: approveSignature.v,
-  //     r: approveSignature.r,
-  //     s: approveSignature.s
-  //   }
-  // };
+  const { chain } = useNetwork();
+  const { data: signer } = useSigner();
+
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
   const [quantity, setQuantity] = useState(0);
   const [selectedToken, setSelectedToken] = useState();
-  const { tokenList, isLoadingTokenList } = useBridge();
-
   // Validation
   const [isTransferValid, setIsTransferValid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  // Confirmation modal
+  // Modals
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const { chain } = useNetwork();
+  const {
+    tokenList,
+    getTokenList,
+    isContractLoading,
+    transfer,
+    contractError,
+    resetError,
+    transactionData,
+    resetTransactionData
+  } = useBridge();
+
+  // handles
+  const handleTransfer = async () => {
+    await transfer(selectedToken, quantity, destinationChain);
+  }
+
+  const handleCloseConfirmationModal = () => {
+    setShowConfirmationModal(false);
+    resetError();
+  }
 
   const handleTokenSelect = (token) => {
     setSelectedToken(token);
@@ -101,26 +103,76 @@ function Transfer() {
     validateTransfer();
   }, [selectedToken, quantity, validateTransfer]);
 
-  const modalActions = [
-    <Button>Confirm</Button>,
-    <Button onClick={() => setShowConfirmationModal(false)}>Cancel</Button>,
-  ];
+  const updateSelectedTokenData = useCallback(async () => {
+    const data = await multicallTokenData(selectedToken.address, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
 
-  const modal = (
-    <Modal onClose={() => setShowConfirmationModal(false)} actionBar={modalActions}>
-      <div className="mb-4">
+    setSelectedToken({
+      name: data[0],
+      symbol: data[1],
+      address: selectedToken.address,
+      balance: data[2]
+    });
+  }, [selectedToken, signer])
+
+  useEffect(() => {
+    if (transactionData) {
+      handleCloseConfirmationModal();
+      setQuantity(0);
+      updateSelectedTokenData();
+    }
+  }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData])
+
+  const confirmationModalActions = (
+    <div className="button-split">
+      <Button loading={isContractLoading} onClick={handleTransfer}>Confirm</Button>
+      <Button onClick={handleCloseConfirmationModal}>Cancel</Button>
+    </div>
+  )
+
+  const confirmationModal = (
+    <Modal onClose={handleCloseConfirmationModal} actionBar={confirmationModalActions}>
+      <>
         <div className="custom-modal__head">
-          <h2>Please Confirm</h2>
+          <h2 className="text-light">Confirm Deposit</h2>
         </div>
 
         <div className="custom-modal__body">
-          Token Name: {selectedToken?.name}
-          Token Symbol:{selectedToken?.symbol}
-          Quantity: {quantity}
-          Source Chain: {chain.name}
-          Destination Chain: {destinationChain.label}
+          <ListView
+            data={{
+              'Token': `${selectedToken?.name}: ${selectedToken?.address}`,
+              'Transfer amount': `${Number(quantity).toString()} ${selectedToken?.symbol}`,
+              'Source Chain': chain?.name,
+              'Destination Chain': destinationChain?.label
+            }}
+          />
+
+          {contractError && <div className="alert alert-danger mt-4">{contractError}</div>}
         </div>
-      </div>
+      </>
+    </Modal>
+  );
+
+  const transactionSuccessModalActions = (
+    <Button onClick={resetTransactionData} className="w-100">Cancel</Button>
+  )
+
+  const transactionSuccessModal = (
+    <Modal onClose={handleCloseConfirmationModal} actionBar={transactionSuccessModalActions}>
+      <>
+        <div className="custom-modal__head">
+          <h2 className="text-light">Your transaction is Successful</h2>
+        </div>
+
+        <div className="custom-modal__body">
+          <ListView
+            data={{
+              'Transaction hash': `${transactionData?.transactionHash}`,
+              'Etherscan URL': `${chainsById[chain.id].blockExplorerUrl}/tx/${transactionData?.transactionHash}`
+            }}
+            links={['Etherscan URL']}
+          />
+        </div>
+      </>
     </Modal>
   );
 
@@ -140,10 +192,8 @@ function Transfer() {
 
               <TokenSelectorContainer
                 quantity={quantity}
-                tokenList={tokenList}
                 selectedToken={selectedToken}
                 handleTokenSelect={handleTokenSelect}
-                isLoadingTokenList={isLoadingTokenList}
                 handleQuantityChange={handleQuantityChange}
                 errorMessage={errorMessage}
               />
@@ -162,7 +212,8 @@ function Transfer() {
             </div>
 
             <div className="transfer-form__actions">
-              {showConfirmationModal && modal}
+              {showConfirmationModal && confirmationModal}
+              {transactionData && transactionSuccessModal}
 
               <Button disabled={!isTransferValid} onClick={() => setShowConfirmationModal(true)}>Transfer</Button>
             </div>

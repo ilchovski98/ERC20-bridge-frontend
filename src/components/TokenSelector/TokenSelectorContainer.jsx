@@ -15,7 +15,7 @@ function TokenSelectorContainer({
   errorMessage
 }) {
   const [showModal, setShowModal] = useState(false);
-  const { tokenList, isLoadingTokenList } = useBridge();
+  const { tokenList, isContractLoading } = useBridge();
 
   const handleTokenSelectAndCloseModal = (token) => {
     handleTokenSelect(token);
@@ -26,7 +26,7 @@ function TokenSelectorContainer({
     <Modal onClose={() => setShowModal(false)}>
       <div className="mb-4">
         <div className="custom-modal__head">
-          <h2>Select token</h2>
+          <h2 className="text-light">Select token</h2>
         </div>
 
         <div className="custom-modal__body">
@@ -38,7 +38,7 @@ function TokenSelectorContainer({
           <TokenList
             handleClick={handleTokenSelectAndCloseModal}
             tokenList={tokenList}
-            isLoadingTokenList={isLoadingTokenList}
+            isLoadingTokenList={isContractLoading}
             className="mt-4"
           />
         </div>

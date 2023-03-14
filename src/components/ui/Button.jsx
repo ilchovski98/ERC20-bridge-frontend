@@ -7,7 +7,7 @@ const Button = ({
   className = '',
   onClick,
   loading = false,
-  loadingText,
+  loadingText = 'Loading',
 }) => {
   return (
     <button

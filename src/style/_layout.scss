@@ -28,3 +28,15 @@
   background-color: $tertiary;
   padding: 24px;
 }
+
+.button-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  button {
+    flex: 0 0 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+  }
+}

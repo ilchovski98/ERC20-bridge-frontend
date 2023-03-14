@@ -37,6 +37,7 @@ const TokenSearch = ({ handleTokenConfirm, handleTokenCancel }) => {
         setTokenData({
           name: data[0],
           symbol: data[1],
+          address: tokenAddress,
           balance: data[2]
         });
         setErrorMessage('');

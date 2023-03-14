@@ -1,7 +1,12 @@
 export const chainList = [
-  { label: 'Goerli', value: 5 },
-  { label: 'Sepolia', value: 11155111 },
+  { label: 'Goerli', value: 5, blockExplorerUrl: 'https://goerli.etherscan.io' },
+  { label: 'Sepolia', value: 11155111, blockExplorerUrl: 'https://sepolia.etherscan.io' },
 ];
+
+export const chainsById = {
+  5: { label: 'Goerli', blockExplorerUrl: 'https://goerli.etherscan.io' },
+  11155111: { label: 'Sepolia', blockExplorerUrl: 'https://sepolia.etherscan.io' },
+};
 
 export const bridgeAddressesByChain = {
   11155111: '0x226326cAd9945F8bf6e7D3de454dFB0ecb4DE9dE',
