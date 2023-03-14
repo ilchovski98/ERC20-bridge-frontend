@@ -1,15 +1,16 @@
 import React from 'react';
 import { GoChevronDown } from 'react-icons/go';
+import { BiErrorAlt } from 'react-icons/bi';
 
 import Field from '../ui/Field';
 import Button from '../ui/Button';
 
 function TokenSelector({
   handleQuantityChange,
-  currentBalance,
   quantity,
   currentToken,
-  handleBtnClick
+  handleBtnClick,
+  errorMessage
 }) {
   return (
     <div className="token-selector">
@@ -19,6 +20,7 @@ function TokenSelector({
           value={quantity}
           onChange={event => handleQuantityChange(event.target.value)}
           className="token-selector__field"
+          placeholder="0.0"
         />
 
         <Button
@@ -34,6 +36,11 @@ function TokenSelector({
           <GoChevronDown />
         </Button>
       </div>
+
+      {
+        errorMessage &&
+        <div className="token-selector__error mt-4"><BiErrorAlt /> {errorMessage}</div>
+      }
 
       <div className="mt-4"><span>Balance:</span> <b>{currentToken?.balance?.toString() || 0} {currentToken?.symbol}</b> (Max)</div>
     </div>

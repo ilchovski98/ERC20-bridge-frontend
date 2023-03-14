@@ -13,41 +13,36 @@ const TokenSearch = ({ handleTokenConfirm, handleTokenCancel }) => {
   const { data: signer } = useSigner();
 
   const [showResult, setShowResult] = useState(false);
-  const [tokenAddress, setTokenAddress] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [tokenAddress, setTokenAddress] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [tokenData, setTokenData] = useState();
   const [isLoadingCheck, setIsLoadingCheck] = useState(false);
-
-  const validateTokenAddress = async (tokenAddress) => {
-    if (!ethers.utils.isAddress(tokenAddress)) {
-      setErrorMessage("This is not a valid address!");
-    } else {
-      setErrorMessage("");
-    }
-  }
 
   const handleTokenAddressCheck = async () => {
     setIsLoadingCheck(true);
 
-    await validateTokenAddress(tokenAddress);
-    const data = await multicallTokenData(tokenAddress, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
-
-    let allValuesAreNotNull = true;
-
-    data.forEach(element => {
-      if (element === null) {
-        allValuesAreNotNull = false;
-      }
-    });
-
-    if (allValuesAreNotNull) {
-      setTokenData({
-        name: data[0],
-        symbol: data[1],
-        balance: data[2]
-      });
+    if (!ethers.utils.isAddress(tokenAddress)) {
+      setErrorMessage('This is not a valid address!');
     } else {
-      setErrorMessage("The provided address do not implement the ERC20 standard");
+      const data = await multicallTokenData(tokenAddress, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
+      let allValuesAreNotNull = true;
+
+      data.forEach(element => {
+        if (element === null) {
+          allValuesAreNotNull = false;
+        }
+      });
+
+      if (allValuesAreNotNull) {
+        setTokenData({
+          name: data[0],
+          symbol: data[1],
+          balance: data[2]
+        });
+        setErrorMessage('');
+      } else {
+        setErrorMessage('The provided address do not implement the ERC20 standard');
+      }
     }
 
     setIsLoadingCheck(false);

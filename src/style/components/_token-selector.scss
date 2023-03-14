@@ -45,4 +45,15 @@
     width: 25px;
     margin-right: 10px;
   }
+
+  .token-selector__error {
+    color: $danger;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+
+    svg {
+      margin-right: 5px;
+    }
+  }
 }

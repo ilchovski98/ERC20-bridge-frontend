@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+  import React, { useState, useEffect, useCallback } from 'react';
 import { useNetwork } from 'wagmi';
 
-import { chainList } from '../config';
 import NetworkSwitch from '../components/NetworkSwitch';
 import TokenSelectorContainer from '../components/TokenSelector/TokenSelectorContainer';
 import Panel from '../components/ui/Panel';
 import Dropdown from '../components/ui/Dropdown';
 import Button from '../components/ui/Button';
+import Modal from '../components/layout/Modal';
 
+import { chainList } from '../config';
 import useBridge from '../hooks/use-bridge';
 
 function Transfer() {
@@ -38,7 +39,10 @@ function Transfer() {
 
   // Validation
   const [isTransferValid, setIsTransferValid] = useState(false);
-  const [validationMessage, setValidationMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Confirmation modal
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const { chain } = useNetwork();
 
@@ -49,6 +53,26 @@ function Transfer() {
   const handleQuantityChange = (quantity) => {
     setQuantity(quantity);
   }
+
+  const validateTransfer = useCallback(() => {
+    if (selectedToken && quantity > 0 && !errorMessage && destinationChain) {
+      setIsTransferValid(true);
+    } else {
+      setIsTransferValid(false);
+    }
+  }, [selectedToken, quantity, errorMessage, destinationChain]);
+
+  // Quantity validation
+  useEffect(() => {
+    setErrorMessage('');
+
+    if (selectedToken) {
+      const tokenBalanceNumber = selectedToken?.balance?.toNumber();
+      if (quantity > tokenBalanceNumber) {
+        setErrorMessage(`Insufficient${' ' + selectedToken?.symbol + ' '}balance.`);
+      }
+    }
+  }, [quantity, selectedToken])
 
   // Destination chain switch
   useEffect(() => {
@@ -72,6 +96,34 @@ function Transfer() {
     }
   }, [tokenList, selectedToken]);
 
+  // Validate transfer
+  useEffect(() => {
+    validateTransfer();
+  }, [selectedToken, quantity, validateTransfer]);
+
+  const modalActions = [
+    <Button>Confirm</Button>,
+    <Button onClick={() => setShowConfirmationModal(false)}>Cancel</Button>,
+  ];
+
+  const modal = (
+    <Modal onClose={() => setShowConfirmationModal(false)} actionBar={modalActions}>
+      <div className="mb-4">
+        <div className="custom-modal__head">
+          <h2>Please Confirm</h2>
+        </div>
+
+        <div className="custom-modal__body">
+          Token Name: {selectedToken?.name}
+          Token Symbol:{selectedToken?.symbol}
+          Quantity: {quantity}
+          Source Chain: {chain.name}
+          Destination Chain: {destinationChain.label}
+        </div>
+      </div>
+    </Modal>
+  );
+
   return (
     <div className="transfer-form">
       <div className="shell-medium">
@@ -93,6 +145,7 @@ function Transfer() {
                 handleTokenSelect={handleTokenSelect}
                 isLoadingTokenList={isLoadingTokenList}
                 handleQuantityChange={handleQuantityChange}
+                errorMessage={errorMessage}
               />
             </div>
 
@@ -109,7 +162,9 @@ function Transfer() {
             </div>
 
             <div className="transfer-form__actions">
-              <Button disabled={!isTransferValid}>Transfer</Button>
+              {showConfirmationModal && modal}
+
+              <Button disabled={!isTransferValid} onClick={() => setShowConfirmationModal(true)}>Transfer</Button>
             </div>
           </div>
         </Panel>

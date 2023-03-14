@@ -11,7 +11,8 @@ function TokenSelectorContainer({
   quantity,
   handleQuantityChange,
   selectedToken,
-  handleTokenSelect
+  handleTokenSelect,
+  errorMessage
 }) {
   const [showModal, setShowModal] = useState(false);
   const { tokenList, isLoadingTokenList } = useBridge();
@@ -54,6 +55,7 @@ function TokenSelectorContainer({
         quantity={quantity}
         handleQuantityChange={handleQuantityChange}
         handleBtnClick={() => setShowModal(true)}
+        errorMessage={errorMessage}
       />
     </>
   );
