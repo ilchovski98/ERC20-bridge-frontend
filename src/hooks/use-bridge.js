@@ -160,10 +160,107 @@ const useBridge = () => {
     setIsContractLoading(false);
   };
 
-  const claim = async data => {
-    await contract.callStatic.claim(data);
-    const borrowBookTx = await contract.claim(data);
-    await borrowBookTx.wait();
+  const receive = async (depositTransaction, tokensDataByChain) => {
+    setIsContractLoading(true);
+
+    let claimData;
+    const depositTx = depositTransaction.transaction;
+    const transactionArgs = depositTx.args;
+
+    if (depositTx.event === 'LockOriginalToken') {
+      const token =
+        tokensDataByChain[transactionArgs.sourceChainId][transactionArgs.lockedTokenAddress];
+      const tokenName = token.name;
+      const tokenSymbol = token.symbol;
+
+      claimData = {
+        from: {
+          _address: transactionArgs.sender,
+          chainId: transactionArgs.sourceChainId,
+        },
+        to: {
+          _address: transactionArgs.recepient,
+          chainId: transactionArgs.toChainId, // Todo fix this .value get direct value
+        },
+        value: transactionArgs.value,
+        token: {
+          tokenAddress: transactionArgs.lockedTokenAddress,
+          originChainId: transactionArgs.sourceChainId,
+        },
+        depositTxSourceToken: transactionArgs.lockedTokenAddress,
+        targetTokenAddress: ethers.constants.AddressZero,
+        targetTokenName: 'Wrapped ' + tokenName,
+        targetTokenSymbol: 'W' + tokenSymbol,
+        deadline: ethers.constants.MaxUint256,
+        sourceTxData: {
+          transactionHash: depositTx.transactionHash,
+          blockHash: depositTx.blockHash,
+          logIndex: depositTx.logIndex,
+        },
+      };
+    } else if (depositTx.event === 'BurnWrappedToken') {
+      let targetTokenAddress, token;
+      if (transactionArgs.originalTokenChainId === transactionArgs.toChainId) {
+        // original
+        targetTokenAddress = transactionArgs.originalTokenAddress;
+        token =
+          tokensDataByChain[transactionArgs.originalTokenChainId][
+            transactionArgs.originalTokenAddress
+          ];
+      } else {
+        // wrapped
+        targetTokenAddress = ethers.constants.AddressZero;
+        token =
+          tokensDataByChain[transactionArgs.sourceChainId][
+            transactionArgs.burnedWrappedTokenAddress
+          ];
+      }
+
+      claimData = {
+        from: {
+          _address: transactionArgs.sender,
+          chainId: transactionArgs.sourceChainId,
+        },
+        to: {
+          _address: transactionArgs.recepient,
+          chainId: transactionArgs.toChainId,
+        },
+        value: transactionArgs.value,
+        token: {
+          tokenAddress: transactionArgs.originalTokenAddress,
+          originChainId: transactionArgs.originalTokenChainId,
+        },
+        depositTxSourceToken: transactionArgs.burnedWrappedTokenAddress,
+        targetTokenAddress: targetTokenAddress,
+        targetTokenName: token.name,
+        targetTokenSymbol: token.symbol,
+        deadline: ethers.constants.MaxUint256,
+        sourceTxData: {
+          transactionHash: depositTx.transactionHash,
+          blockHash: depositTx.blockHash,
+          logIndex: depositTx.logIndex,
+        },
+      };
+    }
+
+    // sign data
+    // bridge, signer, claimData, chainId
+    const signature = await signClaimData(contract, signer, claimData, chain.id.toString());
+    try {
+      await claim(claimData, { v: signature.v, r: signature.r, s: signature.s });
+    } catch (error) {
+      console.log(error);
+      handleErrorMessage(error, setContractError);
+    }
+
+    setIsContractLoading(true);
+  };
+
+  const claim = async (data, signature) => {
+    await contract.callStatic.claim(data, signature);
+    const borrowBookTx = await contract.claim(data, signature);
+    const receipt = await borrowBookTx.wait();
+    console.log('receipt', receipt);
   };
 
   useEffect(() => {
@@ -185,6 +282,7 @@ const useBridge = () => {
     isContractLoading,
     claim,
     transfer,
+    receive,
     contractError,
     resetError,
     transactionData,

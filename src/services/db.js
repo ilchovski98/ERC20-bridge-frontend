@@ -155,7 +155,7 @@ export const getClaimData = async (targetChainId, userAddress) => {
   // label transactions towards user target chain as claimed/not claimed
   const claimData = rawClaimData.depositsFromChains.map(transaction => {
     const isClaimed = allClaimEventIdentifiers.includes(
-      `${transaction.args.transactionHash}-${transaction.args.blockHash}-${transaction.args.logIndex}`,
+      `${transaction.transactionHash}-${transaction.blockHash}-${transaction.logIndex}`,
     );
     return { transaction: transaction, claimed: isClaimed };
   });

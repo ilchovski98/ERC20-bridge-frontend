@@ -11,6 +11,7 @@ import { chainsById } from '../config';
 function Claim() {
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
+  const { receive, isContractLoading, contractError } = useBridge();
   const [claimData, setClaimData] = useState();
   const [tokenDataByChain, setTokenDataByChain] = useState();
   const [isClaimDataLoading, setIsClaimDataLoading] = useState(false);
@@ -21,7 +22,7 @@ function Claim() {
     setClaimData(claimDataValue.claimData);
     setTokenDataByChain(claimDataValue.tokenDataByChain);
     setIsClaimDataLoading(false);
-  }, [chain, setClaimData, signer])
+  }, [chain, setClaimData, signer]);
 
   useEffect(() => {
     handleClaimData();
@@ -53,7 +54,7 @@ function Claim() {
         <p className="mx-3">Token: {tokenName}</p>
         <p className="mx-3">Amount: {txArguments.value.toString()}</p>
 
-        <Button disabled={tx.claimed}>{tx.claimed ? 'Claimed' : 'Claim'}</Button>
+        <Button disabled={tx.claimed} loading={isContractLoading} onClick={() => receive(tx, tokenDataByChain)}>{tx.claimed ? 'Claimed' : 'Claim'}</Button>
       </div>
     )
   });
@@ -62,6 +63,7 @@ function Claim() {
     <div className="shell-medium">
       <h1>Claim</h1>
       <NetworkSwitch />
+      {contractError && <span>{contractError}</span>}
 
       {!isClaimDataLoading ? info : <LoadingSpinner />}
     </div>
