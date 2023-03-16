@@ -26,7 +26,7 @@ const useBridge = () => {
   const getTokenList = useCallback(async () => {
     setIsContractLoading(true);
 
-    const originalTokenList = originalTokensByChain[chain?.id].map(coin => coin.address);
+    const originalTokenList = originalTokensByChain[chain?.id]?.map(coin => coin.address);
     const numberOfWrappedTokens = await contract.getNumberOfWrappedTokens();
     const wrappedTokenList = await multicallGetArrayElements(
       contract.address,
@@ -99,7 +99,7 @@ const useBridge = () => {
       },
       to: {
         _address: signer._address,
-        chainId: destinationChain.value,
+        chainId: destinationChain.value, // Todo fix this .value get direct value
       },
       spender: contract.address,
       token: token.address,

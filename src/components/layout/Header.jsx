@@ -1,7 +1,7 @@
 import React from 'react';
 import { useConnect, useAccount, useBalance } from 'wagmi';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { goerli } from 'wagmi/chains';
+import { goerli, sepolia } from 'wagmi/chains';
 import { Link } from 'react-router-dom';
 
 import { truncate } from '../../utils';
@@ -12,7 +12,7 @@ const md5 = require('md5');
 
 function Header() {
   const connector = new MetaMaskConnector({
-    chains: [goerli],
+    chains: [sepolia, goerli]
   });
 
   const { isConnected, address } = useAccount();

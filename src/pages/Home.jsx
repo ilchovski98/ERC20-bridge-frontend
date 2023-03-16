@@ -12,7 +12,7 @@ function Home() {
     >
       <h2>Start Bridging</h2>
 
-      <Link to="/library" className="btn btn-primary">Transfer</Link>
+      <Link to="/transfer" className="btn btn-primary">Transfer</Link>
     </Hero>
   );
 }

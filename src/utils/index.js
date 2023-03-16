@@ -48,7 +48,7 @@ export const multicallTokensDataByMethod = async (
 
 /*
   Example usage:
-  multicallTokenData('contractAddress', ['balanceOf', 'name', 'symbol'], ['userAddress', '', ''], signer);
+  multicallTokenData('tokenAddress', ['methodName1', 'methodName2', 'methodName3'], [[methodArgs1], [methodArgs2], [methodArgs3]], signer/provider);
 */
 export const multicallTokenData = async (coinAddress, methodNames, methodArguments, signer) => {
   //Make a new class using signer/provider:
@@ -61,10 +61,47 @@ export const multicallTokenData = async (coinAddress, methodNames, methodArgumen
   for (let i = 0; i < methodNames.length; i++) {
     inputs.push({ target: coinAddress, function: methodNames[i], args: methodArguments[i] });
   }
-  console.log('inputs', inputs);
 
   // We are calling then the multicall method passing the ABI of the contract as well as encoded inputs:
   const tokenData = await multi.multiCall(permitERC20ABI.abi, inputs);
+  // We need to decode the result after the result is returned and we are using the first index of every element as follows:
+  for (let i = 0; i < inputs.length; i++) {
+    outputs[i] = tokenData[1][i];
+  }
+
+  return outputs;
+};
+
+/*
+  Example usage:
+  multicallTokenData([tokenAddresses], ['methodName1', 'methodName2', 'methodName3'], [[methodArgs1], [methodArgs2], [methodArgs3]], signer/provider);
+*/
+export const multipleTokensMulticallData = async (
+  coinAddresses,
+  methodNames,
+  methodArguments,
+  signer,
+) => {
+  //Make a new class using signer/provider:
+  const multi = new MultiCall(signer);
+  // Array for the prepared encoded inputs
+  const inputs = [];
+  // Array for the decoded results with the balance of each token
+  const outputs = [];
+
+  for (let coinIndex = 0; coinIndex < coinAddresses.length; coinIndex++) {
+    for (let methodIndex = 0; methodIndex < methodNames.length; methodIndex++) {
+      inputs.push({
+        target: coinAddresses[coinIndex],
+        function: methodNames[methodIndex],
+        args: methodArguments[methodIndex],
+      });
+    }
+  }
+
+  // We are calling then the multicall method passing the ABI of the contract as well as encoded inputs:
+  const tokenData = await multi.multiCall(permitERC20ABI.abi, inputs);
+
   // We need to decode the result after the result is returned and we are using the first index of every element as follows:
   for (let i = 0; i < inputs.length; i++) {
     outputs[i] = tokenData[1][i];
@@ -103,7 +140,6 @@ export const multicallGetArrayElements = async (
 
 export async function signPermitData(token, signer, owner, spender, value, deadline, chainId) {
   const nonce = await token.nonces(owner);
-
   const domain = {
     name: await token.name(),
     version: '1',
@@ -146,6 +182,11 @@ export async function signClaimData(bridge, signer, claimData, chainId) {
       { name: '_address', type: 'address' },
       { name: 'chainId', type: 'uint256' },
     ],
+    SourceTxData: [
+      { name: 'transactionHash', type: 'bytes32' },
+      { name: 'blockHash', type: 'bytes32' },
+      { name: 'logIndex', type: 'uint256' },
+    ],
     OriginalToken: [
       { name: 'tokenAddress', type: 'address' },
       { name: 'originChainId', type: 'uint256' },
@@ -160,6 +201,7 @@ export async function signClaimData(bridge, signer, claimData, chainId) {
       { name: 'targetTokenName', type: 'string' },
       { name: 'targetTokenSymbol', type: 'string' },
       { name: 'deadline', type: 'uint256' },
+      { name: 'sourceTxData', type: 'SourceTxData' },
     ],
     Claim: [
       { name: '_claimData', type: 'ClaimData' },

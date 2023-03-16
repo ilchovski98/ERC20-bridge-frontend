@@ -38,15 +38,14 @@ function Transfer() {
     resetTransactionData
   } = useBridge();
 
-  // handles
   const handleTransfer = async () => {
     await transfer(selectedToken, quantity, destinationChain);
   }
 
-  const handleCloseConfirmationModal = () => {
+  const handleCloseConfirmationModal = useCallback(() => {
     setShowConfirmationModal(false);
     resetError();
-  }
+  }, [setShowConfirmationModal, resetError]);
 
   const handleTokenSelect = (token) => {
     setSelectedToken(token);
@@ -93,9 +92,7 @@ function Transfer() {
 
   // If there is no selected token select the first token from the list
   useEffect(() => {
-    if (!selectedToken) {
-      setSelectedToken(tokenList[0]);
-    }
+    setSelectedToken(tokenList[0]);
   }, [tokenList, selectedToken]);
 
   // Validate transfer
