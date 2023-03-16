@@ -38,6 +38,7 @@
     "wagmi": "^0.10.10"
   },
   "devDependencies": {
+    "dotenv": "^16.0.3",
     "react-icons": "^4.7.1"
   }
 }

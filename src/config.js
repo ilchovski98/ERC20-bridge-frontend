@@ -9,8 +9,8 @@ export const chainsById = {
 };
 
 export const bridgeAddressesByChain = {
-  11155111: '0x226326cAd9945F8bf6e7D3de454dFB0ecb4DE9dE',
-  5: '0x70670B2F7bc421F2fB03d8c990d2a8bFa7D188fd',
+  11155111: '0xF55D12e0fe91c157c3D389F134a46b2182D2F6Da',
+  5: '0xc551F21DE4cd2C55Ea1B8B9eb8b541aaBE9766EF',
 };
 
 export const originalTokensByChain = {

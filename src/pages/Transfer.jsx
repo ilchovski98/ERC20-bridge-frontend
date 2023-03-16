@@ -115,12 +115,12 @@ function Transfer() {
   }, [selectedToken, signer])
 
   useEffect(() => {
-    if (transactionData) {
+    if (transactionData && quantity !== 0) {
       handleCloseConfirmationModal();
       setQuantity(0);
       updateSelectedTokenData();
     }
-  }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData])
+  }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData, quantity])
 
   const confirmationModalActions = (
     <div className="button-split">
@@ -167,7 +167,7 @@ function Transfer() {
           <ListView
             data={{
               'Transaction hash': `${transactionData?.transactionHash}`,
-              'Etherscan URL': `${chainsById[chain.id].blockExplorerUrl}/tx/${transactionData?.transactionHash}`
+              'Etherscan URL': `${chainsById[chain?.id]?.blockExplorerUrl}/tx/${transactionData?.transactionHash}`
             }}
             links={['Etherscan URL']}
           />
