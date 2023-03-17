@@ -23,6 +23,7 @@ const useBridge = () => {
   const [contractError, setContractError] = useState('');
   const [transactionData, setTransactionData] = useState();
 
+  // Gets the balance, name and symbols of hardcoded tokens and known wrapped tokens
   const getTokenList = useCallback(async () => {
     setIsContractLoading(true);
 
@@ -70,6 +71,7 @@ const useBridge = () => {
     setTransactionData('');
   };
 
+  // Deposit function + deciding logic to use permits or not
   const transfer = async (token, amount, destinationChain) => {
     setIsContractLoading(true);
 
@@ -161,6 +163,7 @@ const useBridge = () => {
     setIsContractLoading(false);
   };
 
+  // Claim data generation, signing and sending
   const receive = async (depositTransaction, tokensDataByChain) => {
     setIsContractLoading(true);
 
@@ -203,14 +206,14 @@ const useBridge = () => {
       let targetTokenAddress, token;
 
       if (transactionArgs.originalTokenChainId === transactionArgs.toChainId) {
-        // original
+        // Claiming original token
         targetTokenAddress = ethers.constants.AddressZero;
         token =
           tokensDataByChain[transactionArgs.originalTokenChainId][
             transactionArgs.originalTokenAddress
           ];
       } else {
-        // wrapped
+        // Claiming wrapped token
         targetTokenAddress = transactionArgs.originalTokenAddress;
         token =
           tokensDataByChain[transactionArgs.sourceChainId][
@@ -246,13 +249,14 @@ const useBridge = () => {
     }
 
     // sign data
-    // bridge, signer, claimData, chainId
     const signature = await signClaimData(contract, signer, claimData, chain.id.toString());
+    const signatureSplit = { v: signature.v, r: signature.r, s: signature.s };
+
     try {
-      const signatureSplit = { v: signature.v, r: signature.r, s: signature.s };
       await contract.callStatic.claim(claimData, signatureSplit);
       const claimTx = await contract.claim(claimData, signatureSplit);
       const transaction = await claimTx.wait();
+
       setTransactionData(transaction);
       resetError('');
     } catch (error) {
@@ -261,6 +265,18 @@ const useBridge = () => {
     }
 
     setIsContractLoading(false);
+  };
+
+  const deposit = async data => {
+    await contract.callStatic.deposit(data);
+    const depositTx = await contract.claim(data);
+    await depositTx.wait();
+  };
+
+  const depositWithPermit = async data => {
+    await contract.callStatic.depositWithPermit(data);
+    const depositTx = await contract.claim(data);
+    await depositTx.wait();
   };
 
   const claim = async (data, signature) => {
@@ -286,13 +302,15 @@ const useBridge = () => {
     tokenList,
     getTokenList,
     isContractLoading,
-    transfer,
-    receive,
-    claim,
     contractError,
     resetError,
     transactionData,
     resetTransactionData,
+    transfer,
+    receive,
+    claim,
+    deposit,
+    depositWithPermit,
   };
 };
 
