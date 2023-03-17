@@ -165,7 +165,7 @@ const useBridge = () => {
     setIsContractLoading(true);
 
     let claimData;
-    const depositTx = depositTransaction.transaction;
+    const depositTx = depositTransaction;
     const transactionArgs = depositTx.args;
 
     if (depositTx.event === 'LockOriginalToken') {
@@ -249,20 +249,24 @@ const useBridge = () => {
     // bridge, signer, claimData, chainId
     const signature = await signClaimData(contract, signer, claimData, chain.id.toString());
     try {
-      await claim(claimData, { v: signature.v, r: signature.r, s: signature.s });
+      const signatureSplit = { v: signature.v, r: signature.r, s: signature.s };
+      await contract.callStatic.claim(claimData, signatureSplit);
+      const claimTx = await contract.claim(claimData, signatureSplit);
+      const transaction = await claimTx.wait();
+      setTransactionData(transaction);
+      resetError('');
     } catch (error) {
       console.log(error);
       handleErrorMessage(error, setContractError);
     }
 
-    setIsContractLoading(true);
+    setIsContractLoading(false);
   };
 
   const claim = async (data, signature) => {
     await contract.callStatic.claim(data, signature);
-    const borrowBookTx = await contract.claim(data, signature);
-    const receipt = await borrowBookTx.wait();
-    console.log('receipt', receipt);
+    const claimTx = await contract.claim(data, signature);
+    await claimTx.wait();
   };
 
   useEffect(() => {

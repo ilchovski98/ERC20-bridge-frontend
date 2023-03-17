@@ -117,7 +117,7 @@ function Transfer() {
       setQuantity(0);
       updateSelectedTokenData();
     }
-  }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData, quantity])
+  }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData, quantity]);
 
   const confirmationModalActions = (
     <div className="button-split">
