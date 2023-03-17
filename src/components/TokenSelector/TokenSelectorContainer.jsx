@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import TokenSelector from './TokenSelector';
 import Modal from '../layout/Modal';
-import TokenList from '../TokenList';
+import TokenList from '../ui/TokenList';
 import TokenSearch from '../TokenSearch';
 
 import useBridge from '../../hooks/use-bridge';

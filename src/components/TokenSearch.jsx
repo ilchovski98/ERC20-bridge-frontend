@@ -5,7 +5,7 @@ import { useSigner } from 'wagmi';
 import Field from './ui/Field';
 import Button from './ui/Button';
 import Panel from './ui/Panel';
-import TokenItem from './TokenItem';
+import TokenItem from './ui/TokenItem';
 
 import { multicallTokenData } from '../utils';
 

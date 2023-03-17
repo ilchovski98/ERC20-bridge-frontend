@@ -5,7 +5,7 @@ import NetworkSwitch from '../components/NetworkSwitch';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Modal from '../components/layout/Modal';
-import ListView from '../components/ListView';
+import ListView from '../components/ui/ListView';
 
 import useBridge from '../hooks/use-bridge';
 import { getClaimData } from '../services/db';
@@ -93,7 +93,6 @@ function Claim() {
 
         <Button
           disabled={tx.claimed}
-          loading={isContractLoading}
           onClick={() => {
             setTransactionToClaim({tx: tx.transaction, tokenSymbol, tokenName}) // Todo refactor to not use tokenName, tokenSymbol
             setShowConfirmationModal(true)

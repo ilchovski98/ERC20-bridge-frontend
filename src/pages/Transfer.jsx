@@ -7,7 +7,7 @@ import Panel from '../components/ui/Panel';
 import Dropdown from '../components/ui/Dropdown';
 import Button from '../components/ui/Button';
 import Modal from '../components/layout/Modal';
-import ListView from '../components/ListView';
+import ListView from '../components/ui/ListView';
 
 import { chainList, chainsById } from '../config';
 import { multicallTokenData } from '../utils';
@@ -16,6 +16,15 @@ import useBridge from '../hooks/use-bridge';
 function Transfer() {
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
+  const {
+    tokenList,
+    isContractLoading,
+    transfer,
+    contractError,
+    resetError,
+    transactionData,
+    resetTransactionData
+  } = useBridge();
 
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
@@ -27,16 +36,13 @@ function Transfer() {
   // Modals
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const {
-    tokenList,
-    getTokenList,
-    isContractLoading,
-    transfer,
-    contractError,
-    resetError,
-    transactionData,
-    resetTransactionData
-  } = useBridge();
+  const handleQuantityChange = (quantity) => {
+    setQuantity(quantity);
+  }
+
+  const handleTokenSelect = (token) => {
+    setSelectedToken(token);
+  }
 
   const handleTransfer = async () => {
     await transfer(selectedToken, quantity, destinationChain);
@@ -47,14 +53,6 @@ function Transfer() {
     resetError();
   }, [setShowConfirmationModal, resetError]);
 
-  const handleTokenSelect = (token) => {
-    setSelectedToken(token);
-  }
-
-  const handleQuantityChange = (quantity) => {
-    setQuantity(quantity);
-  }
-
   const validateTransfer = useCallback(() => {
     if (selectedToken && quantity > 0 && !errorMessage && destinationChain) {
       setIsTransferValid(true);
@@ -62,6 +60,17 @@ function Transfer() {
       setIsTransferValid(false);
     }
   }, [selectedToken, quantity, errorMessage, destinationChain]);
+
+  const updateSelectedTokenData = useCallback(async () => {
+    const data = await multicallTokenData(selectedToken.address, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
+
+    setSelectedToken({
+      name: data[0],
+      symbol: data[1],
+      address: selectedToken.address,
+      balance: data[2]
+    });
+  }, [selectedToken, signer])
 
   // Quantity validation
   useEffect(() => {
@@ -100,17 +109,6 @@ function Transfer() {
     validateTransfer();
   }, [selectedToken, quantity, validateTransfer]);
 
-  const updateSelectedTokenData = useCallback(async () => {
-    const data = await multicallTokenData(selectedToken.address, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
-
-    setSelectedToken({
-      name: data[0],
-      symbol: data[1],
-      address: selectedToken.address,
-      balance: data[2]
-    });
-  }, [selectedToken, signer])
-
   useEffect(() => {
     if (transactionData && quantity !== 0) {
       handleCloseConfirmationModal();
@@ -119,12 +117,13 @@ function Transfer() {
     }
   }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData, quantity]);
 
+  // Modals
   const confirmationModalActions = (
     <div className="button-split">
       <Button loading={isContractLoading} onClick={handleTransfer}>Confirm</Button>
       <Button onClick={handleCloseConfirmationModal}>Cancel</Button>
     </div>
-  )
+  );
 
   const confirmationModal = (
     <Modal onClose={handleCloseConfirmationModal} actionBar={confirmationModalActions}>

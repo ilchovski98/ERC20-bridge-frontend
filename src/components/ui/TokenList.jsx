@@ -1,6 +1,6 @@
 import React from 'react';
 
-import LoadingSpinner from './ui/LoadingSpinner';
+import LoadingSpinner from './LoadingSpinner';
 import TokenItem from './TokenItem';
 
 const TokenList = ({ handleClick, tokenList, isLoadingTokenList, className }) => {

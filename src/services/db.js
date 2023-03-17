@@ -27,7 +27,7 @@ const sepoliaBridgeContract = new ethers.Contract(
 );
 
 /*
-  This function replaces the functionality of a database.
+  Gets all events from all bridges
 */
 export const getAllEventsFromAllBridgeChains = async () => {
   const goerliEvents = await goerliBridgeContract.queryFilter('*', 8648602);
@@ -59,7 +59,7 @@ export const getUserTransactions = async (targetChainId, userAddress) => {
   const depositTxsTowardsUserOnTargetChain = [];
   const claimTxsUserExecutedOnTargetChain = [];
 
-  // Gathers all unique token addresses by chainId
+  // Gathers all unique token addresses by chainId in order to make multicall in getClaimData()
   const tokensToFetch = {
     5: [],
     11155111: [],
@@ -145,6 +145,7 @@ export const getClaimData = async (targetChainId, userAddress) => {
   const tokenDataByChain = await getTokenNamesAndSymbols(rawClaimData.tokensToFetch);
   // Claim event unique identifiers - with this data we can pair the deposit txs with the claim txs
   const allClaimEventIdentifiers = [];
+
   rawClaimData.claimsOnCurrentChain.forEach(transaction => {
     allClaimEventIdentifiers.push(
       `${transaction.args.transactionHash}-${transaction.args.blockHash}-${transaction.args.logIndex}`,

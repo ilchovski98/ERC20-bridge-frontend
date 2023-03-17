@@ -226,24 +226,3 @@ export async function signClaimData(bridge, signer, claimData, chainId) {
 
   return signature;
 }
-
-// claimData = {
-//   from: {
-//     _address: userAccount1.address,
-//     chainId: chainId
-//   },
-//   to: {
-//     _address: userAccount1.address,
-//     chainId: chainId
-//   },
-//   value: 20,
-//   token: {
-//     tokenAddress: randomCoin.address,
-//     originChainId: chainId
-//   },
-//   depositTxSourceToken: randomCoin.address,
-//   targetTokenAddress: ethers.constants.AddressZero,
-//   targetTokenName: "Wrapped " + (await randomCoin.name()),
-//   targetTokenSymbol: "W" + (await randomCoin.symbol()),
-//   deadline: ethers.constants.MaxUint256
-// };
