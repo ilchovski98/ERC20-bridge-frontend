@@ -27,11 +27,12 @@ const useBridge = () => {
     setIsContractLoading(true);
 
     const originalTokenList = originalTokensByChain[chain?.id]?.map(coin => coin.address);
-    const numberOfWrappedTokens = await contract.getNumberOfWrappedTokens();
+    const numberOfWrappedTokens = (await contract.getNumberOfWrappedTokens())?.toNumber();
+
     const wrappedTokenList = await multicallGetArrayElements(
       contract.address,
       numberOfWrappedTokens,
-      'wrappedTokensAddresses',
+      'wrappedTokens',
       signer,
     );
 
@@ -180,7 +181,7 @@ const useBridge = () => {
         },
         to: {
           _address: transactionArgs.recepient,
-          chainId: transactionArgs.toChainId, // Todo fix this .value get direct value
+          chainId: transactionArgs.toChainId,
         },
         value: transactionArgs.value,
         token: {
@@ -200,16 +201,17 @@ const useBridge = () => {
       };
     } else if (depositTx.event === 'BurnWrappedToken') {
       let targetTokenAddress, token;
+
       if (transactionArgs.originalTokenChainId === transactionArgs.toChainId) {
         // original
-        targetTokenAddress = transactionArgs.originalTokenAddress;
+        targetTokenAddress = ethers.constants.AddressZero;
         token =
           tokensDataByChain[transactionArgs.originalTokenChainId][
             transactionArgs.originalTokenAddress
           ];
       } else {
         // wrapped
-        targetTokenAddress = ethers.constants.AddressZero;
+        targetTokenAddress = transactionArgs.originalTokenAddress;
         token =
           tokensDataByChain[transactionArgs.sourceChainId][
             transactionArgs.burnedWrappedTokenAddress

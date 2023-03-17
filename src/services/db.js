@@ -59,20 +59,18 @@ export const getUserTransactions = async (targetChainId, userAddress) => {
   const depositTxsTowardsUserOnTargetChain = [];
   const claimTxsUserExecutedOnTargetChain = [];
 
+  // Gathers all unique token addresses by chainId
   const tokensToFetch = {
     5: [],
     11155111: [],
   };
 
-  // Gathers all unique token addresses by chainId
-  const storeTokensToFetch = (addresses, chainId) => {
-    addresses.forEach(address => {
-      if (address) {
-        if (!tokensToFetch[chainId]?.includes(address)) {
-          tokensToFetch[chainId].push(address);
-        }
+  const storeTokenToFetch = (address, chainId) => {
+    if (address) {
+      if (!tokensToFetch[chainId]?.includes(address)) {
+        tokensToFetch[chainId].push(address);
       }
-    });
+    }
   };
 
   /*
@@ -105,14 +103,15 @@ export const getUserTransactions = async (targetChainId, userAddress) => {
             eventArgs.toChainId.toString() === targetChainId.toString()
           ) {
             depositTxsTowardsUserOnTargetChain.push(eventData);
-            storeTokensToFetch(
-              [
-                eventArgs.lockedTokenAddress,
-                eventArgs.originalTokenAddress,
-                eventArgs.burnedWrappedTokenAddress,
-              ],
-              eventArgs.sourceChainId,
-            );
+
+            eventArgs.lockedTokenAddress &&
+              storeTokenToFetch(eventArgs.lockedTokenAddress, eventArgs.sourceChainId);
+
+            eventArgs.originalTokenAddress &&
+              storeTokenToFetch(eventArgs.originalTokenAddress, eventArgs.originalTokenChainId);
+
+            eventArgs.burnedWrappedTokenAddress &&
+              storeTokenToFetch(eventArgs.burnedWrappedTokenAddress, eventArgs.sourceChainId);
           }
         }
       });
@@ -192,8 +191,8 @@ const getTokenNamesAndSymbols = async tokensByChain => {
           symbol: multicalResult[dataIndex + 1],
         };
       });
-
-      return tokenNamesAndSymbolsByChain;
     }
   }
+
+  return tokenNamesAndSymbolsByChain;
 };

@@ -36,7 +36,7 @@ function Claim() {
 
     if (tx.transaction.event === 'LockOriginalToken') {
       const tokenData = tokenDataByChain[txArguments?.sourceChainId?.toString()][txArguments?.lockedTokenAddress];
-      tokenName = 'W' + tokenData.symbol;
+      tokenName = 'W' + tokenData?.symbol;
     } else if (tx.transaction.event === 'BurnWrappedToken') {
       if (chain?.id?.toString() === txArguments?.originalTokenChainId?.toString()) {
         // Original token

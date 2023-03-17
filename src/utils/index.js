@@ -2,6 +2,7 @@ import { MultiCall } from '@limechain/multicall';
 import { ethers } from 'ethers';
 
 import permitERC20ABI from '../abi/PermitERC20.json';
+import bridgeABI from '../abi/Bridge.json';
 
 export function truncate(str, n) {
   return str.length > n
@@ -110,6 +111,10 @@ export const multipleTokensMulticallData = async (
   return outputs;
 };
 
+/*
+  Example usage:
+  multicallGetArrayElements(contract.address, numberOfWrappedTokens, 'wrappedTokens', signer);
+*/
 export const multicallGetArrayElements = async (
   contractAddress,
   arrayLength,
@@ -123,12 +128,12 @@ export const multicallGetArrayElements = async (
   // Array for the decoded results with the balance of each token
   const outputs = [];
 
-  for (let i = 0; i < arrayLength.length; i++) {
+  for (let i = 0; i < arrayLength; i++) {
     inputs.push({ target: contractAddress, function: methodName, args: [i] });
   }
 
   // We are calling then the multicall method passing the ABI of the contract as well as encoded inputs:
-  const tokenData = await multi.multiCall(permitERC20ABI.abi, inputs);
+  const tokenData = await multi.multiCall(bridgeABI.abi, inputs);
 
   // We need to decode the result after the result is returned and we are using the first index of every element as follows:
   for (let i = 0; i < inputs.length; i++) {

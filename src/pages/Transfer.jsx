@@ -90,10 +90,10 @@ function Transfer() {
     setDestinationChain(selectedDestinationChain[0]);
   }, [chain]);
 
-  // If there is no selected token select the first token from the list
+  // when the token list changes select the first token from the list
   useEffect(() => {
     setSelectedToken(tokenList[0]);
-  }, [tokenList, selectedToken]);
+  }, [tokenList]);
 
   // Validate transfer
   useEffect(() => {
