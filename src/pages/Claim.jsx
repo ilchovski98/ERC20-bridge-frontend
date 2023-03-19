@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { ethers } from 'ethers';
 import { useNetwork, useSigner } from 'wagmi';
 
 import NetworkSwitch from '../components/NetworkSwitch';
@@ -61,6 +62,7 @@ function Claim() {
   }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth]);
 
   const info = claimData && claimData.map((tx, index) => {
+    console.log('tx', tx);
     const txArguments = tx.transaction.args;
     const fromChain = chainsById[txArguments.sourceChainId.toString()]?.label;
     const toChain = chainsById[txArguments.toChainId?.toString()]?.label;
@@ -89,7 +91,7 @@ function Claim() {
         <p className="mx-3">From: {fromChain}</p>
         <p className="mx-3">To: {toChain}</p>
         <p className="mx-3">Token: {tokenSymbol}</p>
-        <p className="mx-3">Amount: {txArguments.value.toString()}</p>
+        <p className="mx-3">Amount: {ethers.utils.formatEther(txArguments.value)}</p>
 
         <Button
           disabled={tx.claimed}
@@ -126,7 +128,7 @@ function Claim() {
           <ListView
             data={{
               'Token': transactionToClaim?.tokenName,
-              'Amount': transactionToClaim?.tx?.args?.value?.toString() + ` ${transactionToClaim?.tokenSymbol}`,
+              'Amount': ethers.utils.formatEther(transactionToClaim?.tx?.args?.value) + ` ${transactionToClaim?.tokenSymbol}`,
               'From': `${chainsById[transactionToClaim?.tx?.args?.sourceChainId?.toString()]?.label}`,
               'To': `${chainsById[transactionToClaim?.tx?.args?.toChainId?.toString()]?.label}`
             }}

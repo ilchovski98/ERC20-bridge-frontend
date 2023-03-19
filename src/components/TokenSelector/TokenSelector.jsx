@@ -1,4 +1,5 @@
 import React from 'react';
+import { ethers } from 'ethers';
 import { GoChevronDown } from 'react-icons/go';
 import { BiErrorAlt } from 'react-icons/bi';
 
@@ -42,7 +43,7 @@ function TokenSelector({
         <div className="token-selector__error mt-4"><BiErrorAlt /> {errorMessage}</div>
       }
 
-      <div className="mt-4"><span>Balance:</span> <b>{currentToken?.balance?.toString() || 0} {currentToken?.symbol}</b> (Max)</div>
+      <div className="mt-4"><span>Balance:</span> <b>{currentToken?.balance?.toString() ? ethers.utils.formatEther(currentToken?.balance?.toString()) : 0} {currentToken?.symbol}</b> (Max)</div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNetwork, useSigner } from 'wagmi';
+import { ethers } from 'ethers';
 
 import NetworkSwitch from '../components/NetworkSwitch';
 import TokenSelectorContainer from '../components/TokenSelector/TokenSelectorContainer';
@@ -37,7 +38,14 @@ function Transfer() {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const handleQuantityChange = (quantity) => {
-    setQuantity(quantity);
+    let quantityValue = quantity;
+    if (quantity.toString().includes('.')) {
+      if (quantity.toString().split('.')[1].length > 18) {
+        quantityValue = Number(quantityValue).toFixed(18);
+      }
+    }
+
+    setQuantity(quantityValue);
   }
 
   const handleTokenSelect = (token) => {
@@ -45,7 +53,7 @@ function Transfer() {
   }
 
   const handleTransfer = async () => {
-    await transfer(selectedToken, quantity, destinationChain);
+    await transfer(selectedToken, ethers.utils.parseEther(quantity), destinationChain);
   }
 
   const handleCloseConfirmationModal = useCallback(() => {
@@ -77,8 +85,9 @@ function Transfer() {
     setErrorMessage('');
 
     if (selectedToken) {
-      const tokenBalanceNumber = selectedToken?.balance?.toNumber();
-      if (quantity > tokenBalanceNumber) {
+      const quantityValue = quantity || 0;
+      const quantityToBigNumber = ethers.BigNumber.from(ethers.utils.parseEther(`${quantityValue}`));
+      if (selectedToken?.balance?.lt(quantityToBigNumber)) {
         setErrorMessage(`Insufficient${' ' + selectedToken?.symbol + ' '}balance.`);
       }
     }
@@ -136,7 +145,7 @@ function Transfer() {
           <ListView
             data={{
               'Token': `${selectedToken?.name}: ${selectedToken?.address}`,
-              'Transfer amount': `${Number(quantity).toString()} ${selectedToken?.symbol}`,
+              'Transfer amount': `${quantity.toString()} ${selectedToken?.symbol}`,
               'Source Chain': chain?.name,
               'Destination Chain': destinationChain?.label
             }}

@@ -160,7 +160,7 @@ export const getClaimData = async (targetChainId, userAddress) => {
     return { transaction: transaction, claimed: isClaimed };
   });
 
-  return { claimData, tokenDataByChain };
+  return { claimData: claimData.reverse(), tokenDataByChain };
 };
 
 const getTokenNamesAndSymbols = async tokensByChain => {

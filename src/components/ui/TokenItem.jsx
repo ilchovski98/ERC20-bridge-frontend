@@ -1,4 +1,5 @@
 import React from 'react';
+import { ethers } from 'ethers';
 
 const TokenItem = ({ token, handleClick, className }) => {
   return (
@@ -14,7 +15,7 @@ const TokenItem = ({ token, handleClick, className }) => {
       </div>
 
       <div className="token-item__balance">
-        <span className="token-item__balance-value">{token?.balance.toString()}</span>
+        <span className="token-item__balance-value">{token?.balance.toString() ? ethers.utils.formatEther(token?.balance.toString()) : 0}</span>
       </div>
     </div>
   );
