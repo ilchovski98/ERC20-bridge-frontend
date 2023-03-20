@@ -184,7 +184,7 @@ function Transfer() {
   return (
     <div className="transfer-form">
       <div className="shell-medium">
-        <h1>Transfer</h1>
+        <h1 className="text-light">Transfer</h1>
 
         <Panel>
           <div className="transfer-form__inner">

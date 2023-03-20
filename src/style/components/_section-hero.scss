@@ -5,6 +5,10 @@
 .section-hero {
   padding: 80px 0;
 
+  h1 {
+    color: $light;
+  }
+
   .section-hero__content {
     text-align: center;
   }
@@ -19,5 +23,6 @@
 
   .section-hero__actions h2 {
     margin-bottom: 30px;
+    color: $light;
   }
 }

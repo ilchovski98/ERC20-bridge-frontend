@@ -17,6 +17,7 @@
     align-items: center;
     cursor: pointer;
     transition: border-color $transition-duration;
+    color: $light;
   }
 
   .custom-dropdown__body {
@@ -33,6 +34,7 @@
     cursor: pointer;
     padding: 5px 10px;
     transition: background-color $transition-duration, color $transition-duration;
+    color: $light;
 
     &:hover {
       background-color: $primary;

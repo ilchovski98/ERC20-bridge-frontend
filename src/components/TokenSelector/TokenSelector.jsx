@@ -43,7 +43,7 @@ function TokenSelector({
         <div className="token-selector__error mt-4"><BiErrorAlt /> {errorMessage}</div>
       }
 
-      <div className="mt-4"><span>Balance:</span> <b>{currentToken?.balance?.toString() ? ethers.utils.formatEther(currentToken?.balance?.toString()) : 0} {currentToken?.symbol}</b> (Max)</div>
+      <div className="mt-4"><span>Balance:</span> <b className="text-light">{currentToken?.balance?.toString() ? ethers.utils.formatEther(currentToken?.balance?.toString()) : 0} {currentToken?.symbol}</b> (Max)</div>
     </div>
   );
 }

@@ -62,7 +62,6 @@ function Claim() {
   }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth]);
 
   const info = claimData && claimData.map((tx, index) => {
-    console.log('tx', tx);
     const txArguments = tx.transaction.args;
     const fromChain = chainsById[txArguments.sourceChainId.toString()]?.label;
     const toChain = chainsById[txArguments.toChainId?.toString()]?.label;
@@ -87,18 +86,18 @@ function Claim() {
     }
 
     return (
-      <div className="d-flex align-items-center mb-5" key={`${index}`}>
-        <p className="mx-3">From: {fromChain}</p>
-        <p className="mx-3">To: {toChain}</p>
-        <p className="mx-3">Token: {tokenSymbol}</p>
-        <p className="mx-3">Amount: {ethers.utils.formatEther(txArguments.value)}</p>
+      <div className="d-flex align-items-center justify-content-between mb-5 mt-4" key={`${index}`}>
+        <p className="mx-3">From: <span className="text-light">{fromChain}</span></p>
+        <p className="mx-3">To: <span className="text-light">{toChain}</span></p>
+        <p className="mx-3">Token: <span className="text-light">{tokenSymbol}</span></p>
+        <p className="mx-3">Amount: <span className="text-light">{ethers.utils.formatEther(txArguments.value)}</span></p>
 
         <Button
           disabled={tx.claimed}
+          className="btn--width-medium"
           onClick={() => {
             setTransactionToClaim({tx: tx.transaction, tokenSymbol, tokenName}) // Todo refactor to not use tokenName, tokenSymbol
             setShowConfirmationModal(true)
-            // receive(tx, tokenDataByChain);
           }}
         >{tx.claimed ? 'Claimed' : 'Claim'}</Button>
       </div>
@@ -128,7 +127,7 @@ function Claim() {
           <ListView
             data={{
               'Token': transactionToClaim?.tokenName,
-              'Amount': ethers.utils.formatEther(transactionToClaim?.tx?.args?.value) + ` ${transactionToClaim?.tokenSymbol}`,
+              'Amount': transactionToClaim?.tx?.args?.value ? ethers.utils.formatEther(transactionToClaim?.tx?.args?.value) + ` ${transactionToClaim?.tokenSymbol}`: '',
               'From': `${chainsById[transactionToClaim?.tx?.args?.sourceChainId?.toString()]?.label}`,
               'To': `${chainsById[transactionToClaim?.tx?.args?.toChainId?.toString()]?.label}`
             }}
@@ -165,14 +164,22 @@ function Claim() {
   );
 
   return (
-    <div className="shell-medium">
-      <h1>Claim</h1>
-      <NetworkSwitch />
+    <div className="transfer-form">
+      <div className="shell-medium">
+        <h1 className="text-light">Claim</h1>
+        <NetworkSwitch />
 
-      {showConfirmationModal && confirmationModal}
-      {transactionData && transactionSuccessModal}
+        {showConfirmationModal && confirmationModal}
+        {transactionData && transactionSuccessModal}
 
-      {!isClaimDataLoading ? info : <LoadingSpinner />}
+        {
+          !isClaimDataLoading ?
+          info :
+          <div className="spinner-container">
+            <LoadingSpinner />
+          </div>
+        }
+      </div>
     </div>
   );
 }
