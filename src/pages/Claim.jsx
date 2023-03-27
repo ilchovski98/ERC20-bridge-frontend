@@ -9,7 +9,7 @@ import Modal from '../components/layout/Modal';
 import ListView from '../components/ui/ListView';
 
 import useBridge from '../hooks/use-bridge';
-import { getClaimData } from '../services/db';
+import { getTransactions } from '../services/db';
 import { chainsById } from '../config';
 
 function Claim() {
@@ -26,23 +26,20 @@ function Claim() {
 
   const [claimData, setClaimData] = useState();
   const [transactionToClaim, setTransactionToClaim] = useState();
-  const [tokenDataByChain, setTokenDataByChain] = useState();
   const [isClaimDataLoading, setIsClaimDataLoading] = useState(false);
   // Modals
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const updateClaimData = useCallback(async () => {
     setIsClaimDataLoading(true);
-    const claimDataValue = await getClaimData(chain?.id, signer?._address);
-    setClaimData(claimDataValue.claimData);
-    setTokenDataByChain(claimDataValue.tokenDataByChain);
+    const claimDataValue = await getTransactions(chain?.id, signer?._address);
+    setClaimData(claimDataValue);
     setIsClaimDataLoading(false);
   }, [chain, setClaimData, signer]);
 
   const updateClaimDataStealth = useCallback(async () => {
-    const claimDataValue = await getClaimData(chain?.id, signer?._address);
-    setClaimData(claimDataValue.claimData);
-    setTokenDataByChain(claimDataValue.tokenDataByChain);
+    const claimDataValue = await getTransactions(chain?.id, signer?._address);
+    setClaimData(claimDataValue);
   }, [chain, setClaimData, signer]);
 
   const handleCloseConfirmationModal = useCallback(() => {
@@ -56,47 +53,30 @@ function Claim() {
 
   useEffect(() => {
     if (transactionData) {
-      handleCloseConfirmationModal();
-      updateClaimDataStealth();
-    }
-  }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth]);
-
-  const info = claimData && claimData.map((tx, index) => {
-    const txArguments = tx.transaction.args;
-    const fromChain = chainsById[txArguments.sourceChainId.toString()]?.label;
-    const toChain = chainsById[txArguments.toChainId?.toString()]?.label;
-    let tokenName, tokenSymbol;
-
-    if (tx.transaction.event === 'LockOriginalToken') {
-      const tokenData = tokenDataByChain[txArguments?.sourceChainId?.toString()][txArguments?.lockedTokenAddress];
-      tokenSymbol = 'W' + tokenData?.symbol;
-      tokenName = 'Wrapped ' + tokenData?.name;
-    } else if (tx.transaction.event === 'BurnWrappedToken') {
-      if (chain?.id?.toString() === txArguments?.originalTokenChainId?.toString()) {
-        // Original token
-        const tokenData = tokenDataByChain[chain?.id?.toString()][txArguments?.originalTokenAddress];
-        tokenSymbol = tokenData?.symbol;
-        tokenName = tokenData?.name;
-      } else {
-        // Wrapped token
-        const tokenData = tokenDataByChain[txArguments?.sourceChainId?.toString()][txArguments?.burnedWrappedTokenAddress];
-        tokenSymbol = tokenData?.symbol;
-        tokenName = tokenData?.name;
+      if (showConfirmationModal) {
+        updateClaimDataStealth();
       }
+      handleCloseConfirmationModal();
     }
+  }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth, showConfirmationModal]);
+
+  const info = claimData && claimData?.map((tx, index) => {
+    const fromChain = chainsById[tx.fromChain]?.label;
+    const toChain = chainsById[tx.toChain]?.label;
+    const tokenSymbol = tx?.claimData?.targetTokenSymbol;
 
     return (
       <div className="d-flex align-items-center justify-content-between mb-5 mt-4" key={`${index}`}>
         <p className="mx-3">From: <span className="text-light">{fromChain}</span></p>
         <p className="mx-3">To: <span className="text-light">{toChain}</span></p>
         <p className="mx-3">Token: <span className="text-light">{tokenSymbol}</span></p>
-        <p className="mx-3">Amount: <span className="text-light">{ethers.utils.formatEther(txArguments.value)}</span></p>
+        <p className="mx-3">Amount: <span className="text-light">{ethers.utils.formatEther(tx.claimData.value)}</span></p>
 
         <Button
-          disabled={tx.claimed}
+          disabled={tx.isClaimed}
           className="btn--width-medium"
           onClick={() => {
-            setTransactionToClaim({tx: tx.transaction, tokenSymbol, tokenName}) // Todo refactor to not use tokenName, tokenSymbol
+            setTransactionToClaim(tx)
             setShowConfirmationModal(true)
           }}
         >{tx.claimed ? 'Claimed' : 'Claim'}</Button>
@@ -105,7 +85,7 @@ function Claim() {
   });
 
   const handleReceive = async () => {
-    await receive(transactionToClaim.tx, tokenDataByChain); // Todo refactor to not use tokenDataByChain
+    await receive(transactionToClaim);
   }
 
   // Todo find a way to reuse all these modals if possible - research
@@ -126,10 +106,10 @@ function Claim() {
         <div className="custom-modal__body">
           <ListView
             data={{
-              'Token': transactionToClaim?.tokenName,
-              'Amount': transactionToClaim?.tx?.args?.value ? ethers.utils.formatEther(transactionToClaim?.tx?.args?.value) + ` ${transactionToClaim?.tokenSymbol}`: '',
-              'From': `${chainsById[transactionToClaim?.tx?.args?.sourceChainId?.toString()]?.label}`,
-              'To': `${chainsById[transactionToClaim?.tx?.args?.toChainId?.toString()]?.label}`
+              'Token': transactionToClaim?.claimData?.targetTokenName,
+              'Amount': transactionToClaim?.claimData?.value ? ethers.utils.formatEther(transactionToClaim?.claimData?.value) + ` ${transactionToClaim?.claimData?.targetTokenSymbol}`: '',
+              'From': `${chainsById[transactionToClaim?.fromChain?.toString()]?.label}`,
+              'To': `${chainsById[transactionToClaim?.toChain?.toString()]?.label}`
             }}
           />
 

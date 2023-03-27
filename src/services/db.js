@@ -127,6 +127,14 @@ export const getUserTransactions = async (targetChainId, userAddress) => {
   return result;
 };
 
+export const getTransactions = async (targetChainId, userAddress) => {
+  if (userAddress && targetChainId) {
+    return await fetch(
+      `http://localhost:8000/api/transactions/${userAddress}/${targetChainId}`,
+    ).then(response => response.json());
+  }
+};
+
 /*
   Checks each deposit transaction if it is already claimed
 */

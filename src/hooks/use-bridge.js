@@ -102,7 +102,7 @@ const useBridge = () => {
       },
       to: {
         _address: signer._address,
-        chainId: destinationChain.value, // Todo fix this .value get direct value
+        chainId: destinationChain.value,
       },
       spender: contract.address,
       token: token.address,
@@ -164,97 +164,22 @@ const useBridge = () => {
   };
 
   // Claim data generation, signing and sending
-  const receive = async (depositTransaction, tokensDataByChain) => {
+  const receive = async depositTransaction => {
     setIsContractLoading(true);
 
-    let claimData;
-    const depositTx = depositTransaction;
-    const transactionArgs = depositTx.args;
-
-    if (depositTx.event === 'LockOriginalToken') {
-      const token =
-        tokensDataByChain[transactionArgs.sourceChainId][transactionArgs.lockedTokenAddress];
-      const tokenName = token.name;
-      const tokenSymbol = token.symbol;
-
-      claimData = {
-        from: {
-          _address: transactionArgs.sender,
-          chainId: transactionArgs.sourceChainId,
-        },
-        to: {
-          _address: transactionArgs.recepient,
-          chainId: transactionArgs.toChainId,
-        },
-        value: transactionArgs.value,
-        token: {
-          tokenAddress: transactionArgs.lockedTokenAddress,
-          originChainId: transactionArgs.sourceChainId,
-        },
-        depositTxSourceToken: transactionArgs.lockedTokenAddress,
-        targetTokenAddress: ethers.constants.AddressZero,
-        targetTokenName: 'Wrapped ' + tokenName,
-        targetTokenSymbol: 'W' + tokenSymbol,
-        deadline: ethers.constants.MaxUint256,
-        sourceTxData: {
-          transactionHash: depositTx.transactionHash,
-          blockHash: depositTx.blockHash,
-          logIndex: depositTx.logIndex,
-        },
-      };
-    } else if (depositTx.event === 'BurnWrappedToken') {
-      let targetTokenAddress, token;
-
-      if (transactionArgs.originalTokenChainId === transactionArgs.toChainId) {
-        // Claiming original token
-        targetTokenAddress = ethers.constants.AddressZero;
-        token =
-          tokensDataByChain[transactionArgs.originalTokenChainId][
-            transactionArgs.originalTokenAddress
-          ];
-      } else {
-        // Claiming wrapped token
-        targetTokenAddress = transactionArgs.originalTokenAddress;
-        token =
-          tokensDataByChain[transactionArgs.sourceChainId][
-            transactionArgs.burnedWrappedTokenAddress
-          ];
-      }
-
-      claimData = {
-        from: {
-          _address: transactionArgs.sender,
-          chainId: transactionArgs.sourceChainId,
-        },
-        to: {
-          _address: transactionArgs.recepient,
-          chainId: transactionArgs.toChainId,
-        },
-        value: transactionArgs.value,
-        token: {
-          tokenAddress: transactionArgs.originalTokenAddress,
-          originChainId: transactionArgs.originalTokenChainId,
-        },
-        depositTxSourceToken: transactionArgs.burnedWrappedTokenAddress,
-        targetTokenAddress: targetTokenAddress,
-        targetTokenName: token.name,
-        targetTokenSymbol: token.symbol,
-        deadline: ethers.constants.MaxUint256,
-        sourceTxData: {
-          transactionHash: depositTx.transactionHash,
-          blockHash: depositTx.blockHash,
-          logIndex: depositTx.logIndex,
-        },
-      };
-    }
-
-    // sign data
-    const signature = await signClaimData(contract, signer, claimData, chain.id.toString());
-    const signatureSplit = { v: signature.v, r: signature.r, s: signature.s };
-
     try {
-      await contract.callStatic.claim(claimData, signatureSplit);
-      const claimTx = await contract.claim(claimData, signatureSplit);
+      const signature = await fetch(
+        `http://localhost:8000/api/transactions/claim/${depositTransaction.id}`,
+      ).then(response => response.json());
+
+      const signatureSplit = {
+        v: signature.v,
+        r: signature.r,
+        s: signature.s,
+      };
+
+      await contract.callStatic.claim(depositTransaction.claimData, signatureSplit);
+      const claimTx = await contract.claim(depositTransaction.claimData, signatureSplit);
       const transaction = await claimTx.wait();
 
       setTransactionData(transaction);
