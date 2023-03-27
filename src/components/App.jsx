@@ -8,6 +8,7 @@ import { infuraProvider } from 'wagmi/providers/infura';
 import Home from '../pages/Home';
 import Transfer from '../pages/Transfer';
 import Claim from '../pages/Claim';
+import History from '../pages/History';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
 
@@ -38,6 +39,8 @@ function App() {
               <Route path="/transfer" element={<Transfer />} />
 
               <Route path="/claim" element={<Claim />} />
+
+              <Route path="/history" element={<History />} />
             </Routes>
           </div>
 
