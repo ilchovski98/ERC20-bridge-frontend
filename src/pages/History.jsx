@@ -33,16 +33,17 @@ function Claim() {
   }, [updateClaimData]);
 
   const info = claimData && claimData?.map((tx, index) => {
-    const fromChain = chainsById[tx.fromChain]?.label;
-    const toChain = chainsById[tx.toChain]?.label;
-    const tokenSymbol = tx?.claimData?.targetTokenSymbol;
+    const fromChain = chainsById[tx?.fromChain]?.label;
+    const toChain = chainsById[tx?.toChain]?.label;
+    const fromTokenSymbol = tx?.fromTokenSymbol;
+    const toTokenSymbol = tx?.claimData?.targetTokenSymbol;
 
     return (
       <div className="d-flex align-items-center justify-content-between mb-5 mt-4" key={`${index}`}>
         <p className="mx-3">Chains: <span className="text-light">{fromChain}</span> ➡️ <span className="text-light">{toChain}</span></p>
-        <p className="mx-3">Token: <span className="text-light">{tokenSymbol}</span> ➡️ <span className="text-light">{tokenSymbol}</span></p>
-        <p className="mx-3">Amount: <span className="text-light">{ethers.utils.formatEther(tx.claimData.value)}</span></p>
-        <p>{tx.isClaimed ? 'Claimed' : 'Not Claimed'}</p>
+        <p className="mx-3">Token: <span className="text-light">{fromTokenSymbol}</span> ➡️ <span className="text-light">{toTokenSymbol}</span></p>
+        <p className="mx-3">Amount: <span className="text-light">{ethers.utils.formatEther(tx?.claimData?.value || 0)}</span></p>
+        <p>{tx?.isClaimed ? 'Claimed' : 'Not Claimed'}</p>
       </div>
     )
   });
