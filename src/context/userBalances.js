@@ -2,14 +2,8 @@ import { createContext, useState, useEffect, useCallback } from 'react';
 import { useSigner, useNetwork } from 'wagmi';
 
 import useBridge from '../hooks/use-bridge';
-import {
-  multicallTokensDataByMethod,
-  multicallGetArrayElements,
-  signPermitData,
-  signClaimData,
-  handleErrorMessage,
-} from '../utils';
-import { bridgeAddressesByChain, originalTokensByChain } from '../config';
+import { multicallTokensDataByMethod, multicallGetArrayElements } from '../utils';
+import { originalTokensByChain } from '../config';
 
 const UserBalanceContext = createContext();
 

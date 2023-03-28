@@ -1,0 +1,21 @@
+/* ------------------------------------------------------------ *\
+  warning-message
+\* ------------------------------------------------------------ */
+
+.warning-message {
+  padding: 12px 20px;
+  border: 1px solid $danger;
+  background-color: $danger;
+  color: $dark;
+  width: 100%;
+  border-radius: $border-radius;
+
+  .warning-message__content {
+    display: flex;
+    align-items: center;
+  }
+
+  .warning-message__icon {
+    margin-right: 20px;
+  }
+}
