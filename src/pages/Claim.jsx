@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { useNetwork, useSigner } from 'wagmi';
+import { useNetwork, useSigner, useAccount } from 'wagmi';
 
 import NetworkSwitch from '../components/NetworkSwitch';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Modal from '../components/layout/Modal';
 import ListView from '../components/ui/ListView';
+import Connect from '../components/layout/Connect';
 
 import useBridge from '../hooks/use-bridge';
 import { getTransactions } from '../services/db';
@@ -15,6 +16,8 @@ import { chainsById } from '../config';
 function Claim() {
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
+  const { isConnected } = useAccount();
+
   const {
     receive,
     isContractLoading,
@@ -48,17 +51,21 @@ function Claim() {
   }, [setShowConfirmationModal, resetError]);
 
   useEffect(() => {
-    updateClaimData();
-  }, [updateClaimData]);
+    if (signer) {
+      updateClaimData();
+    }
+  }, [updateClaimData, signer]);
 
   useEffect(() => {
-    if (transactionData) {
-      if (showConfirmationModal) {
-        updateClaimDataStealth();
+    if (signer) {
+      if (transactionData) {
+        if (showConfirmationModal) {
+          updateClaimDataStealth();
+        }
+        handleCloseConfirmationModal();
       }
-      handleCloseConfirmationModal();
     }
-  }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth, showConfirmationModal]);
+  }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth, showConfirmationModal, signer]);
 
   const info = claimData && claimData?.map((tx, index) => {
     const fromChain = chainsById[tx.fromChain]?.label;
@@ -143,21 +150,34 @@ function Claim() {
     </Modal>
   );
 
+  const claimContent = <>
+    <NetworkSwitch />
+
+    {showConfirmationModal && confirmationModal}
+    {transactionData && transactionSuccessModal}
+
+    {
+      !isClaimDataLoading ?
+      info :
+      <div className="spinner-container">
+        <LoadingSpinner />
+      </div>
+    }
+  </>;
+
   return (
     <div className="transfer-form">
       <div className="shell-medium">
         <h1 className="text-light">Claim</h1>
-        <NetworkSwitch />
-
-        {showConfirmationModal && confirmationModal}
-        {transactionData && transactionSuccessModal}
 
         {
-          !isClaimDataLoading ?
-          info :
-          <div className="spinner-container">
-            <LoadingSpinner />
-          </div>
+          isConnected ?
+          (
+            claimData?.length > 0 ?
+            claimContent :
+            <p className="text-center">There are no claim transactions</p>
+          ) :
+          <Connect />
         }
       </div>
     </div>

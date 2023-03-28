@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNetwork, useSigner } from 'wagmi';
+import { useNetwork, useSigner, useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 
 import NetworkSwitch from '../components/NetworkSwitch';
@@ -9,6 +9,7 @@ import Dropdown from '../components/ui/Dropdown';
 import Button from '../components/ui/Button';
 import Modal from '../components/layout/Modal';
 import ListView from '../components/ui/ListView';
+import Connect from '../components/layout/Connect';
 
 import { chainList, chainsById } from '../config';
 import { multicallTokenData } from '../utils';
@@ -17,6 +18,8 @@ import useBridge from '../hooks/use-bridge';
 function Transfer() {
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
+  const { isConnected } = useAccount();
+
   const {
     tokenList,
     isContractLoading,
@@ -70,14 +73,16 @@ function Transfer() {
   }, [selectedToken, quantity, errorMessage, destinationChain]);
 
   const updateSelectedTokenData = useCallback(async () => {
-    const data = await multicallTokenData(selectedToken.address, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
+    if (signer) {
+      const data = await multicallTokenData(selectedToken.address, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
 
-    setSelectedToken({
-      name: data[0],
-      symbol: data[1],
-      address: selectedToken.address,
-      balance: data[2]
-    });
+      setSelectedToken({
+        name: data[0],
+        symbol: data[1],
+        address: selectedToken.address,
+        balance: data[2]
+      });
+    }
   }, [selectedToken, signer])
 
   // Quantity validation
@@ -181,49 +186,55 @@ function Transfer() {
     </Modal>
   );
 
+  const transferContent = <Panel>
+    <div className="transfer-form__inner">
+      <div className="transfer-form__container">
+        <div className="d-flex align-items-center mb-4">
+          <label>From</label>
+
+          <NetworkSwitch onSwitch={() => setSelectedToken("")} />
+        </div>
+
+        <TokenSelectorContainer
+          quantity={quantity}
+          selectedToken={selectedToken}
+          handleTokenSelect={handleTokenSelect}
+          handleQuantityChange={handleQuantityChange}
+          errorMessage={errorMessage}
+        />
+      </div>
+
+      <div className="transfer-form__container">
+        <div className="d-flex align-items-center">
+          <label>To</label>
+
+          <Dropdown
+            options={destinationChainsStatus}
+            value={destinationChain}
+            onChange={chain => setDestinationChain(chain)}
+          />
+        </div>
+      </div>
+
+      <div className="transfer-form__actions">
+        {showConfirmationModal && confirmationModal}
+        {transactionData && transactionSuccessModal}
+
+        <Button disabled={!isTransferValid} onClick={() => setShowConfirmationModal(true)}>Transfer</Button>
+      </div>
+    </div>
+  </Panel>;
+
   return (
     <div className="transfer-form">
       <div className="shell-medium">
         <h1 className="text-light">Transfer</h1>
 
-        <Panel>
-          <div className="transfer-form__inner">
-            <div className="transfer-form__container">
-              <div className="d-flex align-items-center mb-4">
-                <label>From</label>
-
-                <NetworkSwitch onSwitch={() => setSelectedToken("")} />
-              </div>
-
-              <TokenSelectorContainer
-                quantity={quantity}
-                selectedToken={selectedToken}
-                handleTokenSelect={handleTokenSelect}
-                handleQuantityChange={handleQuantityChange}
-                errorMessage={errorMessage}
-              />
-            </div>
-
-            <div className="transfer-form__container">
-              <div className="d-flex align-items-center">
-                <label>To</label>
-
-                <Dropdown
-                  options={destinationChainsStatus}
-                  value={destinationChain}
-                  onChange={chain => setDestinationChain(chain)}
-                />
-              </div>
-            </div>
-
-            <div className="transfer-form__actions">
-              {showConfirmationModal && confirmationModal}
-              {transactionData && transactionSuccessModal}
-
-              <Button disabled={!isTransferValid} onClick={() => setShowConfirmationModal(true)}>Transfer</Button>
-            </div>
-          </div>
-        </Panel>
+        {
+          isConnected ?
+          transferContent :
+          <Connect />
+        }
       </div>
     </div>
   );
