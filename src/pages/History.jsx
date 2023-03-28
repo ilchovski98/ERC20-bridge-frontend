@@ -39,11 +39,11 @@ function Claim() {
     const toTokenSymbol = tx?.claimData?.targetTokenSymbol;
 
     return (
-      <div className="d-flex align-items-center justify-content-between mb-5 mt-4" key={`${index}`}>
-        <p className="mx-3">Chains: <span className="text-light">{fromChain}</span> ➡️ <span className="text-light">{toChain}</span></p>
-        <p className="mx-3">Token: <span className="text-light">{fromTokenSymbol}</span> ➡️ <span className="text-light">{toTokenSymbol}</span></p>
-        <p className="mx-3">Amount: <span className="text-light">{ethers.utils.formatEther(tx?.claimData?.value || 0)}</span></p>
-        <p>{tx?.isClaimed ? 'Claimed' : 'Not Claimed'}</p>
+      <div className="history__body">
+        <div className="history__item"><span className="text-light">{fromChain}</span> ➡️ <span className="text-light">{toChain}</span></div>
+        <div className="history__item"><span className="text-light">{fromTokenSymbol}</span> ➡️ <span className="text-light">{toTokenSymbol}</span></div>
+        <div className="history__item"><span className="text-light">{ethers.utils.formatEther(tx?.claimData?.value || 0)}</span></div>
+        <div className="history__item"><span className="text-light">{tx?.isClaimed ? 'Claimed' : 'Not Claimed'}</span></div>
       </div>
     )
   });
@@ -88,7 +88,19 @@ function Claim() {
 
         {
           !isHistoryLoading ?
-          info :
+          <div className="history">
+            <div className="history__head">
+              <div className="history__item">Chains</div>
+
+              <div className="history__item">Token</div>
+
+              <div className="history__item">Amount</div>
+
+              <div className="history__item">Status</div>
+            </div>
+
+            { info }
+          </div> :
           <div className="spinner-container">
             <LoadingSpinner />
           </div>
