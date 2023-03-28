@@ -12,7 +12,7 @@ function Claim() {
       <div className="shell-medium">
         <h1 className="text-light">Claim</h1>
 
-        <span>Backend is offline</span>
+        <span>Backend is currently down. You will be able to claim your bridged tokens when the servers is back online.</span>
       </div>
     </div>
   );
