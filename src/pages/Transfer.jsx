@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useNetwork, useSigner, useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 
@@ -15,13 +15,14 @@ import { chainList, chainsById } from '../config';
 import { multicallTokenData } from '../utils';
 import useBridge from '../hooks/use-bridge';
 
+import UserBalanceContext from '../context/userBalances';
+
 function Transfer() {
   const { chain } = useNetwork();
   const { data: signer } = useSigner();
   const { isConnected } = useAccount();
 
   const {
-    tokenList,
     isContractLoading,
     transfer,
     contractError,
@@ -30,10 +31,13 @@ function Transfer() {
     resetTransactionData
   } = useBridge();
 
+  const { tokenList } = useContext(UserBalanceContext);
+
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
   const [quantity, setQuantity] = useState(0);
   const [selectedToken, setSelectedToken] = useState();
+  const [isDefaultTokenSelected, setIsDefaultTokenSelected] = useState();
   // Validation
   const [isTransferValid, setIsTransferValid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -113,10 +117,25 @@ function Transfer() {
     setDestinationChain(selectedDestinationChain[0]);
   }, [chain]);
 
-  // when the token list changes select the first token from the list
-  useEffect(() => {
+  const setDefaultToken = useCallback(() => {
     setSelectedToken(tokenList[0]);
+    setIsDefaultTokenSelected(true);
   }, [tokenList]);
+
+  // change only once on chain and signer change
+  useEffect(() => {
+    if (!isDefaultTokenSelected) {
+      setDefaultToken();
+    }
+  }, [chain, signer, setDefaultToken, isDefaultTokenSelected]);
+
+  useEffect(() => {
+    if (!selectedToken?.name) {
+      if (tokenList?.length > 0) {
+        setDefaultToken();
+      }
+    }
+  }, [tokenList, selectedToken, setDefaultToken])
 
   // Validate transfer
   useEffect(() => {

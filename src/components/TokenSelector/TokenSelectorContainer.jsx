@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 
 import TokenSelector from './TokenSelector';
 import Modal from '../layout/Modal';
@@ -6,6 +6,7 @@ import TokenList from '../ui/TokenList';
 import TokenSearch from '../TokenSearch';
 
 import useBridge from '../../hooks/use-bridge';
+import UserBalanceContext from '../../context/userBalances';
 
 function TokenSelectorContainer({
   quantity,
@@ -15,7 +16,8 @@ function TokenSelectorContainer({
   errorMessage
 }) {
   const [showModal, setShowModal] = useState(false);
-  const { tokenList, isContractLoading } = useBridge();
+  const { tokenList } = useContext(UserBalanceContext);
+  const { isContractLoading } = useBridge();
 
   const handleTokenSelectAndCloseModal = (token) => {
     handleTokenSelect(token);

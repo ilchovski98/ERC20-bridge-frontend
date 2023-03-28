@@ -14,6 +14,7 @@ function Claim() {
 
   const [claimData, setClaimData] = useState();
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [emptyMessage, setEmptyMessage] = useState('');
 
   const updateClaimData = useCallback(async () => {
     if (signer) {
@@ -30,6 +31,14 @@ function Claim() {
     }
   }, [updateClaimData, signer]);
 
+  useEffect(() => {
+    if (signer) {
+      setTimeout(() => {
+        setEmptyMessage('There are no previous transactions');
+      }, 500);
+    }
+  }, [setEmptyMessage, signer])
+
   const info = claimData && claimData?.map((tx, index) => {
     const fromChain = chainsById[tx?.fromChain]?.label;
     const toChain = chainsById[tx?.toChain]?.label;
@@ -37,7 +46,7 @@ function Claim() {
     const toTokenSymbol = tx?.claimData?.targetTokenSymbol;
 
     return (
-      <div className="history__body">
+      <div className="history__body" key={`${index}-${tx?.id}`}>
         <div className="history__item"><span className="text-light">{fromChain}</span> ➡️ <span className="text-light">{toChain}</span></div>
         <div className="history__item"><span className="text-light">{fromTokenSymbol}</span> ➡️ <span className="text-light">{toTokenSymbol}</span></div>
         <div className="history__item"><span className="text-light">{ethers.utils.formatEther(tx?.claimData?.value || 0)}</span></div>
@@ -73,13 +82,12 @@ function Claim() {
     <div className="transfer-form">
       <div className="shell-medium">
         <h1 className="text-light">History</h1>
-
         {
           isConnected ?
           (
-            claimData?.length > 0 ?
+            claimData?.length > 0 || isHistoryLoading ?
             transferContent :
-            <p className="text-center">There are no previous transactions</p>
+            emptyMessage && <p className="text-center">{emptyMessage}</p>
           ) :
           <Connect />
         }

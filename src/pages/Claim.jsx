@@ -30,6 +30,7 @@ function Claim() {
   const [claimData, setClaimData] = useState();
   const [transactionToClaim, setTransactionToClaim] = useState();
   const [isClaimDataLoading, setIsClaimDataLoading] = useState(false);
+  const [emptyMessage, setEmptyMessage] = useState('');
   // Modals
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
@@ -66,6 +67,14 @@ function Claim() {
       }
     }
   }, [transactionData, handleCloseConfirmationModal, updateClaimDataStealth, showConfirmationModal, signer]);
+
+  useEffect(() => {
+    if (signer) {
+      setTimeout(() => {
+        setEmptyMessage('There are no claim transactions');
+      }, 300);
+    }
+  }, [setEmptyMessage, signer])
 
   const info = claimData && claimData?.map((tx, index) => {
     const fromChain = chainsById[tx.fromChain]?.label;
@@ -173,9 +182,9 @@ function Claim() {
         {
           isConnected ?
           (
-            claimData?.length > 0 ?
+            claimData?.length > 0 || isClaimDataLoading ?
             claimContent :
-            <p className="text-center">There are no claim transactions</p>
+            emptyMessage && <p className="text-center">{emptyMessage}</p>
           ) :
           <Connect />
         }

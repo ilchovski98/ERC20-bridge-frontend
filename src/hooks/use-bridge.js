@@ -18,50 +18,9 @@ const useBridge = () => {
   const { chain } = useNetwork();
 
   const [contract, setContract] = useState();
-  const [tokenList, setTokenList] = useState([]);
   const [isContractLoading, setIsContractLoading] = useState(false);
   const [contractError, setContractError] = useState('');
   const [transactionData, setTransactionData] = useState();
-
-  // Gets the balance, name and symbols of hardcoded tokens and known wrapped tokens
-  const getTokenList = useCallback(async () => {
-    setIsContractLoading(true);
-
-    const originalTokenList = originalTokensByChain[chain?.id]?.map(coin => coin.address);
-    const numberOfWrappedTokens = (await contract.getNumberOfWrappedTokens())?.toNumber();
-
-    const wrappedTokenList = await multicallGetArrayElements(
-      contract.address,
-      numberOfWrappedTokens,
-      'wrappedTokens',
-      signer,
-    );
-
-    const allTokenAddresses = [...originalTokenList, ...wrappedTokenList];
-
-    if (allTokenAddresses.length > 0) {
-      const names = await multicallTokensDataByMethod(allTokenAddresses, 'name', [], signer);
-      const symbols = await multicallTokensDataByMethod(allTokenAddresses, 'symbol', [], signer);
-      const userBalances = await multicallTokensDataByMethod(
-        allTokenAddresses,
-        'balanceOf',
-        [signer._address],
-        signer,
-      );
-
-      const tokenListData = allTokenAddresses.map((token, index) => {
-        return {
-          name: names[index],
-          symbol: symbols[index],
-          address: token,
-          balance: userBalances[index],
-        };
-      });
-
-      setTokenList(tokenListData);
-      setIsContractLoading(false);
-    }
-  }, [contract, signer, chain]);
 
   const resetError = () => {
     setContractError('');
@@ -216,16 +175,8 @@ const useBridge = () => {
     }
   }, [signer, chain]);
 
-  useEffect(() => {
-    if (contract) {
-      getTokenList();
-    }
-  }, [contract, getTokenList, chain]);
-
   return {
     contract,
-    tokenList,
-    getTokenList,
     isContractLoading,
     contractError,
     resetError,

@@ -5,6 +5,7 @@ import { sepolia, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 
+import { UserBalanceProvider } from '../context/userBalances';
 import Home from '../pages/Home';
 import Transfer from '../pages/Transfer';
 import Claim from '../pages/Claim';
@@ -29,23 +30,25 @@ function App() {
   return (
     <BrowserRouter>
       <WagmiConfig client={client}>
-        <div className="wrapper">
-          <Header />
+        <UserBalanceProvider>
+          <div className="wrapper">
+            <Header />
 
-          <div className="main">
-            <Routes>
-              <Route path="/" element={<Home />} />
+            <div className="main">
+              <Routes>
+                <Route path="/" element={<Home />} />
 
-              <Route path="/transfer" element={<Transfer />} />
+                <Route path="/transfer" element={<Transfer />} />
 
-              <Route path="/claim" element={<Claim />} />
+                <Route path="/claim" element={<Claim />} />
 
-              <Route path="/history" element={<History />} />
-            </Routes>
+                <Route path="/history" element={<History />} />
+              </Routes>
+            </div>
+
+            <Footer />
           </div>
-
-          <Footer />
-        </div>
+        </UserBalanceProvider>
       </WagmiConfig>
     </BrowserRouter>
   );
