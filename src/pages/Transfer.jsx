@@ -7,14 +7,12 @@ import TokenSelectorContainer from '../components/TokenSelector/TokenSelectorCon
 import Panel from '../components/ui/Panel';
 import Dropdown from '../components/ui/Dropdown';
 import Button from '../components/ui/Button';
-import Modal from '../components/layout/Modal';
-import ListView from '../components/ui/ListView';
 import Connect from '../components/layout/Connect';
+import TransferModals from '../components/Transfer/TransferModals';
 
-import { chainList, chainsById } from '../config';
+import { chainList } from '../config';
 import { multicallTokenData } from '../utils';
 import useBridge from '../hooks/use-bridge';
-
 import UserBalanceContext from '../context/userBalances';
 
 function Transfer() {
@@ -23,12 +21,9 @@ function Transfer() {
   const { isConnected } = useAccount();
 
   const {
-    isContractLoading,
     transfer,
-    contractError,
     resetError,
     transactionData,
-    resetTransactionData
   } = useBridge();
 
   const { tokenList } = useContext(UserBalanceContext);
@@ -38,10 +33,8 @@ function Transfer() {
   const [quantity, setQuantity] = useState(0);
   const [selectedToken, setSelectedToken] = useState();
   const [isDefaultTokenSelected, setIsDefaultTokenSelected] = useState();
-  // Validation
   const [isTransferValid, setIsTransferValid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  // Modals
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const handleQuantityChange = (quantity) => {
@@ -87,7 +80,12 @@ function Transfer() {
         balance: data[2]
       });
     }
-  }, [selectedToken, signer])
+  }, [selectedToken, signer]);
+
+  const setDefaultToken = useCallback(() => {
+    setSelectedToken(tokenList[0]);
+    setIsDefaultTokenSelected(true);
+  }, [tokenList]);
 
   // Quantity validation
   useEffect(() => {
@@ -117,11 +115,6 @@ function Transfer() {
     setDestinationChain(selectedDestinationChain[0]);
   }, [chain]);
 
-  const setDefaultToken = useCallback(() => {
-    setSelectedToken(tokenList[0]);
-    setIsDefaultTokenSelected(true);
-  }, [tokenList]);
-
   // change only once on chain and signer change
   useEffect(() => {
     if (!isDefaultTokenSelected) {
@@ -149,61 +142,6 @@ function Transfer() {
       updateSelectedTokenData();
     }
   }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData, quantity]);
-
-  // Modals
-  const confirmationModalActions = (
-    <div className="button-split">
-      <Button loading={isContractLoading} onClick={handleTransfer}>Confirm</Button>
-      <Button onClick={handleCloseConfirmationModal}>Cancel</Button>
-    </div>
-  );
-
-  const confirmationModal = (
-    <Modal onClose={handleCloseConfirmationModal} actionBar={confirmationModalActions}>
-      <>
-        <div className="custom-modal__head">
-          <h2 className="text-light">Confirm Deposit</h2>
-        </div>
-
-        <div className="custom-modal__body">
-          <ListView
-            data={{
-              'Token': `${selectedToken?.name}: ${selectedToken?.address}`,
-              'Transfer amount': `${quantity.toString()} ${selectedToken?.symbol}`,
-              'Source Chain': chain?.name,
-              'Destination Chain': destinationChain?.label
-            }}
-          />
-
-          {contractError && <div className="alert alert-danger mt-4">{contractError}</div>}
-        </div>
-      </>
-    </Modal>
-  );
-
-  const transactionSuccessModalActions = (
-    <Button onClick={resetTransactionData} className="w-100">Cancel</Button>
-  )
-
-  const transactionSuccessModal = (
-    <Modal onClose={handleCloseConfirmationModal} actionBar={transactionSuccessModalActions}>
-      <>
-        <div className="custom-modal__head">
-          <h2 className="text-light">Your transaction is Successful</h2>
-        </div>
-
-        <div className="custom-modal__body">
-          <ListView
-            data={{
-              'Transaction hash': `${transactionData?.transactionHash}`,
-              'Etherscan URL': `${chainsById[chain?.id]?.blockExplorerUrl}/tx/${transactionData?.transactionHash}`
-            }}
-            links={['Etherscan URL']}
-          />
-        </div>
-      </>
-    </Modal>
-  );
 
   const transferContent = <Panel>
     <div className="transfer-form__inner">
@@ -236,8 +174,14 @@ function Transfer() {
       </div>
 
       <div className="transfer-form__actions">
-        {showConfirmationModal && confirmationModal}
-        {transactionData && transactionSuccessModal}
+        <TransferModals
+          handleTransfer={handleTransfer}
+          handleCloseConfirmationModal={handleCloseConfirmationModal}
+          selectedToken={selectedToken}
+          quantity={quantity}
+          destinationChain={destinationChain}
+          showConfirmationModal={showConfirmationModal}
+        />
 
         <Button disabled={!isTransferValid} onClick={() => setShowConfirmationModal(true)}>Transfer</Button>
       </div>
