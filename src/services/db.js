@@ -13,3 +13,7 @@ export const getUserHistory = async userAddress => {
     );
   }
 };
+
+export const backendCheck = async () => {
+  return await fetch(`http://localhost:8000/`).catch(error => error);
+};
