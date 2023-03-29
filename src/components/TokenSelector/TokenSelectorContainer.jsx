@@ -16,12 +16,15 @@ function TokenSelectorContainer({
   errorMessage
 }) {
   const [showModal, setShowModal] = useState(false);
-  const { tokenList, getTokenBalance } = useContext(UserBalanceContext);
+  const { tokenList, tokenBalances } = useContext(UserBalanceContext);
   const { isContractLoading } = useBridge();
   const [ tokenListWithBalances, setTokenListWithBalances ] = useState(tokenList);
 
   const handleTokenSelectAndCloseModal = (token) => {
-    handleTokenSelect(token);
+    handleTokenSelect({
+      ...token,
+      customToken: true
+    });
     setShowModal(false);
   }
 
@@ -29,7 +32,7 @@ function TokenSelectorContainer({
     const newTokenList = [];
 
     for (let i = 0; i < tokenList.length; i++) {
-      const balance = await getTokenBalance(tokenList[i].address)
+      const balance = tokenBalances[tokenList[i].address];
 
       newTokenList.push({
         ...tokenList[i],
@@ -38,7 +41,7 @@ function TokenSelectorContainer({
     }
 
     setTokenListWithBalances(newTokenList);
-  }, [tokenList, getTokenBalance, setTokenListWithBalances]);
+  }, [tokenList, tokenBalances, setTokenListWithBalances]);
 
   useEffect(() => {
     createTokenListWithBalances()

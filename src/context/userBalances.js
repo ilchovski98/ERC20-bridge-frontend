@@ -109,16 +109,13 @@ function UserBalanceProvider({ children }) {
   );
 
   useEffect(() => {
-    console.log('network change!');
     handleNetworkChange();
-  }, [handleNetworkChange]);
+  }, [handleNetworkChange, signer, chain]);
 
   useEffect(() => {
     const provider = signer?.provider;
     if (signer) {
-      updateTokenBalances();
       provider.on('block', async () => {
-        console.log('new block');
         updateTokenBalances();
       });
     }
@@ -127,7 +124,7 @@ function UserBalanceProvider({ children }) {
   }, [signer, updateTokenBalances, chain]);
 
   return (
-    <UserBalanceContext.Provider value={{ tokenList, getTokenBalance }}>
+    <UserBalanceContext.Provider value={{ tokenList, getTokenBalance, tokenBalances }}>
       {children}
     </UserBalanceContext.Provider>
   );

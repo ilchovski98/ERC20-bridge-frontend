@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNetwork } from 'wagmi';
 
 import Modal from '../layout/Modal';
@@ -14,16 +14,13 @@ const TransferModals = ({
   selectedToken,
   quantity,
   destinationChain,
-  showConfirmationModal
+  showConfirmationModal,
+  isContractLoading,
+  contractError,
+  transactionData,
+  resetTransactionData
 }) => {
   const { chain } = useNetwork();
-
-  const {
-    isContractLoading,
-    contractError,
-    transactionData,
-    resetTransactionData
-  } = useBridge();
 
   const confirmationModalActions = (
     <div className="button-split">

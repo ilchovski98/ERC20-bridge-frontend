@@ -24,10 +24,13 @@ function TransferContent({ isBackendAvailable }) {
   const {
     transfer,
     resetError,
+    isContractLoading,
+    contractError,
     transactionData,
+    resetTransactionData
   } = useBridge();
 
-  const { tokenList } = useContext(UserBalanceContext);
+  const { tokenList, tokenBalances } = useContext(UserBalanceContext);
 
   const [destinationChain, setDestinationChain] = useState();
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
@@ -72,13 +75,22 @@ function TransferContent({ isBackendAvailable }) {
   const updateSelectedTokenData = useCallback(async () => {
     if (signer) {
       const data = await multicallTokenData(selectedToken.address, ['name', 'symbol', 'balanceOf'], [[], [], [signer._address]], signer);
-
-      setSelectedToken({
+      let selectedTokenData = {
         name: data[0],
         symbol: data[1],
         address: selectedToken.address,
         balance: data[2]
-      });
+      };
+
+      if (selectedToken?.customToken) {
+        selectedTokenData = {
+          ...selectedTokenData,
+          customToken: true
+        }
+      }
+      if (selectedToken?.balance?.toString() !== selectedTokenData?.balance?.toString()) {
+        setSelectedToken(selectedTokenData);
+      }
     }
   }, [selectedToken, signer]);
 
@@ -140,6 +152,12 @@ function TransferContent({ isBackendAvailable }) {
     }
   }, [transactionData, handleCloseConfirmationModal, updateSelectedTokenData, quantity]);
 
+  useEffect(() => {
+    if (selectedToken?.customToken) {
+      updateSelectedTokenData();
+    }
+  }, [selectedToken, updateSelectedTokenData, tokenBalances])
+
   const transferContent = <Panel>
     <div className="transfer-form__inner">
       <div className="transfer-form__container">
@@ -178,6 +196,10 @@ function TransferContent({ isBackendAvailable }) {
           quantity={quantity}
           destinationChain={destinationChain}
           showConfirmationModal={showConfirmationModal}
+          isContractLoading={isContractLoading}
+          contractError={contractError}
+          transactionData={transactionData}
+          resetTransactionData={resetTransactionData}
         />
 
         <Button disabled={!isTransferValid} onClick={() => setShowConfirmationModal(true)}>Transfer</Button>

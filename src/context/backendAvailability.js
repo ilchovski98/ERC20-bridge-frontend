@@ -9,7 +9,7 @@ function BackendAvailabilityProvider({ children }) {
   useEffect(() => {
     const backendCheckInit = async () => {
       const result = await backendCheck();
-      console.log('result', result?.status);
+
       if (result?.status === 200) {
         setIsBackendAvailable(result);
       } else {
