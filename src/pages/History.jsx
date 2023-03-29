@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import ClaimContent from '../components/Claim/ClaimContent';
+import HistoryContent from '../components/History/HistoryContent';
 import WarningMessage from '../components/ui/WarningMessage';
 
 import BackendAvailabilityContext from '../context/backendAvailability';
@@ -11,9 +11,9 @@ function Claim() {
   const backendOffline = (
     <div className="transfer-form">
       <div className="shell-medium">
-        <h1 className="text-light">Claim</h1>
+        <h1 className="text-light">History</h1>
 
-        <WarningMessage message="Backend is currently down! You will be able to claim your bridged tokens when the servers are back online." />
+        <WarningMessage message="Backend is currently down. You will be able to see your history when the servers are back online." />
       </div>
     </div>
   );
@@ -23,7 +23,7 @@ function Claim() {
       {
         !isBackendAvailable ?
         backendOffline :
-        <ClaimContent />
+        <HistoryContent />
       }
     </>
   );

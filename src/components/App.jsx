@@ -5,9 +5,12 @@ import { sepolia, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { infuraProvider } from 'wagmi/providers/infura';
 
+import { UserBalanceProvider } from '../context/userBalances';
+import { BackendAvailabilityProvider } from '../context/backendAvailability';
 import Home from '../pages/Home';
 import Transfer from '../pages/Transfer';
 import Claim from '../pages/Claim';
+import History from '../pages/History';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
 
@@ -28,21 +31,27 @@ function App() {
   return (
     <BrowserRouter>
       <WagmiConfig client={client}>
-        <div className="wrapper">
-          <Header />
+        <UserBalanceProvider>
+          <BackendAvailabilityProvider>
+            <div className="wrapper">
+              <Header />
 
-          <div className="main">
-            <Routes>
-              <Route path="/" element={<Home />} />
+              <div className="main">
+                <Routes>
+                  <Route path="/" element={<Home />} />
 
-              <Route path="/transfer" element={<Transfer />} />
+                  <Route path="/transfer" element={<Transfer />} />
 
-              <Route path="/claim" element={<Claim />} />
-            </Routes>
-          </div>
+                  <Route path="/claim" element={<Claim />} />
 
-          <Footer />
-        </div>
+                  <Route path="/history" element={<History />} />
+                </Routes>
+              </div>
+
+              <Footer />
+            </div>
+          </BackendAvailabilityProvider>
+        </UserBalanceProvider>
       </WagmiConfig>
     </BrowserRouter>
   );

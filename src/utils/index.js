@@ -24,6 +24,7 @@ export const multicallTokensDataByMethod = async (
   methodArguments,
   signer,
 ) => {
+  if (!signer) return;
   //Make a new class using signer/provider:
   const multi = new MultiCall(signer);
   // Array for the prepared encoded inputs

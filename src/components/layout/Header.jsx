@@ -53,6 +53,10 @@ function Header() {
                 <li>
                   <Link to="/claim">Claim</Link>
                 </li>
+
+                <li>
+                  <Link to="/history">History</Link>
+                </li>
               </ul>
             </nav>
           </div>

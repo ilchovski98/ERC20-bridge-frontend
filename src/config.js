@@ -17,7 +17,7 @@ export const originalTokensByChain = {
   11155111: [
     { name: 'RandomCoin', symbol: 'RC', address: '0x9a7F208A777ed19233380959c4028c99886c5843' },
     { name: 'DogeCoin', symbol: 'DC', address: '0x9b432836C67D4Bbe94a10EfB6Da0c9CEBA990a57' },
-    { name: 'CatCoin', symbol: 'CC', address: '0x45D3F76AD684cDfeA4eCbc9842d595d3e68dd01E' },
+    // { name: 'CatCoin', symbol: 'CC', address: '0x45D3F76AD684cDfeA4eCbc9842d595d3e68dd01E' },
   ],
   5: [
     { name: 'DinoCoin', symbol: 'DC', address: '0xBdb3eB1022F8Fa2d873aA0089C05a7A1b5004349' },

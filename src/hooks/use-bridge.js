@@ -1,67 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useSigner, useNetwork } from 'wagmi';
 
 import bridgeABI from '../abi/Bridge.json';
 import PermitERC20 from '../abi/PermitERC20.json';
-import { bridgeAddressesByChain, originalTokensByChain } from '../config';
-import {
-  multicallTokensDataByMethod,
-  multicallGetArrayElements,
-  signPermitData,
-  signClaimData,
-  handleErrorMessage,
-} from '../utils';
+import { bridgeAddressesByChain } from '../config';
+import { signPermitData, handleErrorMessage } from '../utils';
 
 const useBridge = () => {
   const { data: signer } = useSigner();
   const { chain } = useNetwork();
 
   const [contract, setContract] = useState();
-  const [tokenList, setTokenList] = useState([]);
   const [isContractLoading, setIsContractLoading] = useState(false);
   const [contractError, setContractError] = useState('');
   const [transactionData, setTransactionData] = useState();
-
-  // Gets the balance, name and symbols of hardcoded tokens and known wrapped tokens
-  const getTokenList = useCallback(async () => {
-    setIsContractLoading(true);
-
-    const originalTokenList = originalTokensByChain[chain?.id]?.map(coin => coin.address);
-    const numberOfWrappedTokens = (await contract.getNumberOfWrappedTokens())?.toNumber();
-
-    const wrappedTokenList = await multicallGetArrayElements(
-      contract.address,
-      numberOfWrappedTokens,
-      'wrappedTokens',
-      signer,
-    );
-
-    const allTokenAddresses = [...originalTokenList, ...wrappedTokenList];
-
-    if (allTokenAddresses.length > 0) {
-      const names = await multicallTokensDataByMethod(allTokenAddresses, 'name', [], signer);
-      const symbols = await multicallTokensDataByMethod(allTokenAddresses, 'symbol', [], signer);
-      const userBalances = await multicallTokensDataByMethod(
-        allTokenAddresses,
-        'balanceOf',
-        [signer._address],
-        signer,
-      );
-
-      const tokenListData = allTokenAddresses.map((token, index) => {
-        return {
-          name: names[index],
-          symbol: symbols[index],
-          address: token,
-          balance: userBalances[index],
-        };
-      });
-
-      setTokenList(tokenListData);
-      setIsContractLoading(false);
-    }
-  }, [contract, signer, chain]);
 
   const resetError = () => {
     setContractError('');
@@ -102,7 +55,7 @@ const useBridge = () => {
       },
       to: {
         _address: signer._address,
-        chainId: destinationChain.value, // Todo fix this .value get direct value
+        chainId: destinationChain.value,
       },
       spender: contract.address,
       token: token.address,
@@ -164,97 +117,22 @@ const useBridge = () => {
   };
 
   // Claim data generation, signing and sending
-  const receive = async (depositTransaction, tokensDataByChain) => {
+  const receive = async depositTransaction => {
     setIsContractLoading(true);
 
-    let claimData;
-    const depositTx = depositTransaction;
-    const transactionArgs = depositTx.args;
-
-    if (depositTx.event === 'LockOriginalToken') {
-      const token =
-        tokensDataByChain[transactionArgs.sourceChainId][transactionArgs.lockedTokenAddress];
-      const tokenName = token.name;
-      const tokenSymbol = token.symbol;
-
-      claimData = {
-        from: {
-          _address: transactionArgs.sender,
-          chainId: transactionArgs.sourceChainId,
-        },
-        to: {
-          _address: transactionArgs.recepient,
-          chainId: transactionArgs.toChainId,
-        },
-        value: transactionArgs.value,
-        token: {
-          tokenAddress: transactionArgs.lockedTokenAddress,
-          originChainId: transactionArgs.sourceChainId,
-        },
-        depositTxSourceToken: transactionArgs.lockedTokenAddress,
-        targetTokenAddress: ethers.constants.AddressZero,
-        targetTokenName: 'Wrapped ' + tokenName,
-        targetTokenSymbol: 'W' + tokenSymbol,
-        deadline: ethers.constants.MaxUint256,
-        sourceTxData: {
-          transactionHash: depositTx.transactionHash,
-          blockHash: depositTx.blockHash,
-          logIndex: depositTx.logIndex,
-        },
-      };
-    } else if (depositTx.event === 'BurnWrappedToken') {
-      let targetTokenAddress, token;
-
-      if (transactionArgs.originalTokenChainId === transactionArgs.toChainId) {
-        // Claiming original token
-        targetTokenAddress = ethers.constants.AddressZero;
-        token =
-          tokensDataByChain[transactionArgs.originalTokenChainId][
-            transactionArgs.originalTokenAddress
-          ];
-      } else {
-        // Claiming wrapped token
-        targetTokenAddress = transactionArgs.originalTokenAddress;
-        token =
-          tokensDataByChain[transactionArgs.sourceChainId][
-            transactionArgs.burnedWrappedTokenAddress
-          ];
-      }
-
-      claimData = {
-        from: {
-          _address: transactionArgs.sender,
-          chainId: transactionArgs.sourceChainId,
-        },
-        to: {
-          _address: transactionArgs.recepient,
-          chainId: transactionArgs.toChainId,
-        },
-        value: transactionArgs.value,
-        token: {
-          tokenAddress: transactionArgs.originalTokenAddress,
-          originChainId: transactionArgs.originalTokenChainId,
-        },
-        depositTxSourceToken: transactionArgs.burnedWrappedTokenAddress,
-        targetTokenAddress: targetTokenAddress,
-        targetTokenName: token.name,
-        targetTokenSymbol: token.symbol,
-        deadline: ethers.constants.MaxUint256,
-        sourceTxData: {
-          transactionHash: depositTx.transactionHash,
-          blockHash: depositTx.blockHash,
-          logIndex: depositTx.logIndex,
-        },
-      };
-    }
-
-    // sign data
-    const signature = await signClaimData(contract, signer, claimData, chain.id.toString());
-    const signatureSplit = { v: signature.v, r: signature.r, s: signature.s };
-
     try {
-      await contract.callStatic.claim(claimData, signatureSplit);
-      const claimTx = await contract.claim(claimData, signatureSplit);
+      const signature = await fetch(
+        `http://localhost:8000/api/transactions/claim/${depositTransaction.id}`,
+      ).then(response => response.json());
+
+      const signatureSplit = {
+        v: signature.v,
+        r: signature.r,
+        s: signature.s,
+      };
+
+      await contract.callStatic.claim(depositTransaction.claimData, signatureSplit);
+      const claimTx = await contract.claim(depositTransaction.claimData, signatureSplit);
       const transaction = await claimTx.wait();
 
       setTransactionData(transaction);
@@ -291,16 +169,8 @@ const useBridge = () => {
     }
   }, [signer, chain]);
 
-  useEffect(() => {
-    if (contract) {
-      getTokenList();
-    }
-  }, [contract, getTokenList, chain]);
-
   return {
     contract,
-    tokenList,
-    getTokenList,
     isContractLoading,
     contractError,
     resetError,

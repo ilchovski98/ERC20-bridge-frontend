@@ -15,7 +15,7 @@ const TokenItem = ({ token, handleClick, className }) => {
       </div>
 
       <div className="token-item__balance">
-        <span className="token-item__balance-value">{token?.balance.toString() ? ethers.utils.formatEther(token?.balance.toString()) : 0}</span>
+        <span className="token-item__balance-value">{token?.balance?.toString() ? ethers.utils.formatEther(token?.balance.toString()) : 0}</span>
       </div>
     </div>
   );
