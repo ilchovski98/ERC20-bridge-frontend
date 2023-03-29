@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 
 import TokenSelector from './TokenSelector';
 import Modal from '../layout/Modal';
@@ -16,13 +16,33 @@ function TokenSelectorContainer({
   errorMessage
 }) {
   const [showModal, setShowModal] = useState(false);
-  const { tokenList } = useContext(UserBalanceContext);
+  const { tokenList, getTokenBalance } = useContext(UserBalanceContext);
   const { isContractLoading } = useBridge();
+  const [ tokenListWithBalances, setTokenListWithBalances ] = useState(tokenList);
 
   const handleTokenSelectAndCloseModal = (token) => {
     handleTokenSelect(token);
     setShowModal(false);
   }
+
+  const createTokenListWithBalances = useCallback(async () => {
+    const newTokenList = [];
+
+    for (let i = 0; i < tokenList.length; i++) {
+      const balance = await getTokenBalance(tokenList[i].address)
+
+      newTokenList.push({
+        ...tokenList[i],
+        balance
+      });
+    }
+
+    setTokenListWithBalances(newTokenList);
+  }, [tokenList, getTokenBalance, setTokenListWithBalances]);
+
+  useEffect(() => {
+    createTokenListWithBalances()
+  }, [createTokenListWithBalances])
 
   const modal = (
     <Modal onClose={() => setShowModal(false)}>
@@ -39,7 +59,7 @@ function TokenSelectorContainer({
 
           <TokenList
             handleClick={handleTokenSelectAndCloseModal}
-            tokenList={tokenList}
+            tokenList={tokenListWithBalances}
             isLoadingTokenList={isContractLoading}
             className="mt-4"
           />

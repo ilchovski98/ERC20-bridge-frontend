@@ -1,5 +1,8 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { useSigner, useNetwork } from 'wagmi';
+import { ethers } from 'ethers';
+
+import permitERC20ABI from '../abi/PermitERC20.json';
 
 import useBridge from '../hooks/use-bridge';
 import { multicallTokensDataByMethod, multicallGetArrayElements } from '../utils';
@@ -10,17 +13,16 @@ const UserBalanceContext = createContext();
 function UserBalanceProvider({ children }) {
   const [tokenList, setTokenList] = useState([]);
   const [allTokenAddresses, setAllTokenAddresses] = useState();
+  const [tokenBalances, setTokenBalances] = useState();
 
   const { data: signer } = useSigner();
   const { chain } = useNetwork();
 
   const { contract } = useBridge();
 
-  const updateTokenData = useCallback(async () => {
+  const updateTokenBalances = useCallback(async () => {
     if (!signer) return;
     if (allTokenAddresses?.length > 0) {
-      const names = await multicallTokensDataByMethod(allTokenAddresses, 'name', [], signer);
-      const symbols = await multicallTokensDataByMethod(allTokenAddresses, 'symbol', [], signer);
       const userBalances = await multicallTokensDataByMethod(
         allTokenAddresses,
         'balanceOf',
@@ -28,16 +30,16 @@ function UserBalanceProvider({ children }) {
         signer,
       );
 
-      const tokenListData = allTokenAddresses.map((token, index) => {
-        return {
-          name: names[index],
-          symbol: symbols[index],
-          address: token,
-          balance: userBalances[index],
+      let newBalances = {};
+
+      allTokenAddresses.forEach((token, index) => {
+        newBalances = {
+          ...newBalances,
+          [token]: userBalances[index],
         };
       });
 
-      setTokenList(tokenListData);
+      setTokenBalances(newBalances);
     }
   }, [signer, allTokenAddresses]);
 
@@ -64,37 +66,70 @@ function UserBalanceProvider({ children }) {
         signer,
       );
 
+      let newBalances = {};
+
       const tokenListData = finalTokenList.map((token, index) => {
+        newBalances = {
+          ...newBalances,
+          [token]: userBalances[index],
+        };
+
         return {
           name: names[index],
           symbol: symbols[index],
           address: token,
-          balance: userBalances[index],
         };
       });
 
+      setTokenBalances(newBalances);
       setAllTokenAddresses(finalTokenList);
       setTokenList(tokenListData);
     }
   }, [chain, contract, signer]);
 
+  const getTokenBalance = useCallback(
+    async address => {
+      if (!address) return;
+      if (tokenBalances[address]) {
+        return tokenBalances[address];
+      }
+
+      if (signer) {
+        const tokenContract = new ethers.Contract(address, permitERC20ABI.abi, signer);
+        const value = await tokenContract.balanceOf(signer._address).catch(error => false);
+
+        if (value) {
+          return ethers.utils.formatEther(value);
+        }
+      }
+
+      return;
+    },
+    [tokenBalances, signer],
+  );
+
   useEffect(() => {
+    console.log('network change!');
     handleNetworkChange();
   }, [handleNetworkChange]);
 
   useEffect(() => {
     const provider = signer?.provider;
     if (signer) {
+      updateTokenBalances();
       provider.on('block', async () => {
-        updateTokenData();
+        console.log('new block');
+        updateTokenBalances();
       });
     }
 
     return () => provider?.off('block');
-  }, [signer, updateTokenData]);
+  }, [signer, updateTokenBalances, chain]);
 
   return (
-    <UserBalanceContext.Provider value={{ tokenList }}>{children}</UserBalanceContext.Provider>
+    <UserBalanceContext.Provider value={{ tokenList, getTokenBalance }}>
+      {children}
+    </UserBalanceContext.Provider>
   );
 }
 

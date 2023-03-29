@@ -33,7 +33,6 @@ function TransferContent({ isBackendAvailable }) {
   const [destinationChainsStatus, setDestinationChainsStatus] = useState(chainList);
   const [quantity, setQuantity] = useState(0);
   const [selectedToken, setSelectedToken] = useState();
-  const [isDefaultTokenSelected, setIsDefaultTokenSelected] = useState();
   const [isTransferValid, setIsTransferValid] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -85,7 +84,6 @@ function TransferContent({ isBackendAvailable }) {
 
   const setDefaultToken = useCallback(() => {
     setSelectedToken(tokenList[0]);
-    setIsDefaultTokenSelected(true);
   }, [tokenList]);
 
   // Quantity validation
@@ -118,10 +116,8 @@ function TransferContent({ isBackendAvailable }) {
 
   // change only once on chain and signer change
   useEffect(() => {
-    if (!isDefaultTokenSelected) {
-      setDefaultToken();
-    }
-  }, [chain, signer, setDefaultToken, isDefaultTokenSelected]);
+    setDefaultToken();
+  }, [chain, signer, setDefaultToken]);
 
   useEffect(() => {
     if (!selectedToken?.name) {
