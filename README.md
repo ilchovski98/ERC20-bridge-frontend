@@ -1,5 +1,8 @@
 ## 🗄 Project description, structure and functionalities
 
+Bridge Backend: https://github.com/ilchovski98/ERC20-bridge-backend
+Bridge Smart Contract: https://github.com/ilchovski98/ERC20-bridge-smart-contract
+
 Project uses [React.js](https://reactjs.org/) and it's bootstraped via [Create React app](https://create-react-app.dev/).
 
 **Folders and files**
