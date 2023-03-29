@@ -20,7 +20,10 @@ const ClaimContent = () => {
   const {
     receive,
     resetError,
-    transactionData
+    isContractLoading,
+    contractError,
+    transactionData,
+    resetTransactionData
   } = useBridge();
 
   const [claimData, setClaimData] = useState();
@@ -90,7 +93,7 @@ const ClaimContent = () => {
             setTransactionToClaim(tx)
             setShowConfirmationModal(true)
           }}
-        >{tx.claimed ? 'Claimed' : 'Claim'}</Button>
+        >{tx.isClaimed ? 'Claimed' : 'Claim'}</Button>
       </div>
     )
   });
@@ -122,6 +125,10 @@ const ClaimContent = () => {
             handleCloseConfirmationModal={handleCloseConfirmationModal}
             transactionToClaim={transactionToClaim}
             showConfirmationModal={showConfirmationModal}
+            isContractLoading={isContractLoading}
+            contractError={contractError}
+            transactionData={transactionData}
+            resetTransactionData={resetTransactionData}
           />
 
           {

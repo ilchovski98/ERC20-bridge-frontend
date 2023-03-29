@@ -2,8 +2,6 @@ import React from 'react';
 import { ethers } from 'ethers';
 import { useNetwork } from 'wagmi';
 
-import useBridge from '../../hooks/use-bridge';
-
 import Modal from '../layout/Modal';
 import ListView from '../ui/ListView';
 import Button from '../ui/Button';
@@ -13,16 +11,13 @@ const ClaimModals = ({
   handleReceive,
   handleCloseConfirmationModal,
   transactionToClaim,
-  showConfirmationModal
+  showConfirmationModal,
+  isContractLoading,
+  contractError,
+  transactionData,
+  resetTransactionData
 }) => {
   const { chain } = useNetwork();
-
-  const {
-    isContractLoading,
-    contractError,
-    transactionData,
-    resetTransactionData
-  } = useBridge();
 
   const confirmationModalActions = (
     <div className="button-split">
