@@ -1,17 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useSigner, useNetwork } from 'wagmi';
 
 import bridgeABI from '../abi/Bridge.json';
 import PermitERC20 from '../abi/PermitERC20.json';
-import { bridgeAddressesByChain, originalTokensByChain } from '../config';
-import {
-  multicallTokensDataByMethod,
-  multicallGetArrayElements,
-  signPermitData,
-  signClaimData,
-  handleErrorMessage,
-} from '../utils';
+import { bridgeAddressesByChain } from '../config';
+import { signPermitData, handleErrorMessage } from '../utils';
 
 const useBridge = () => {
   const { data: signer } = useSigner();

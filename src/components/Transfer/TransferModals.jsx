@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNetwork } from 'wagmi';
 
 import Modal from '../layout/Modal';
 import ListView from '../ui/ListView';
 import Button from '../ui/Button';
 
-import useBridge from '../../hooks/use-bridge';
 import { chainsById } from '../../config';
 
 const TransferModals = ({
